@@ -40,13 +40,13 @@ const buildBackground = () => {
 }
 
 // 获取工作线程文件列表
-const workThreads = traverseFolder(path.join(path.dirname(__dirname), 'src', 'electron', 'workThreads'), path.join(path.dirname(__dirname)))
+const workThreads = traverseFolder(path.join(path.dirname(__dirname), 'src', 'electron', 'workers'), path.join(path.dirname(__dirname)))
 // 打包获取工作线程文件
 const buildWorkThreads = () => {
     require('esbuild').buildSync({
         entryPoints: workThreads,
         bundle: true,
-        outdir: `${OUT_DIR}/electron/workThreads`,
+        outdir: `${OUT_DIR}/electron/workers`,
         platform: 'node',
         target: 'node12',
         external: externalModel

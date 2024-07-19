@@ -1,4 +1,3 @@
-import { app } from "electron"
 import winston, { format } from 'winston'
 
 const logFormat = format.printf(({level, message, label, timestamp}) => {
@@ -49,37 +48,3 @@ class CustomerLog {
 }
 
 export const logger = CustomerLog.getInstance()
-
-export const init = () => {
-    // 定义日志配置
-    
-    app.on('ready', async () => {
-        // 渲染进程崩溃
-        app.on('renderer-process-crashed', (event, webContents, killed) => {
-            logger.error(
-            `APP-ERROR:renderer-process-crashed; event: ${JSON.stringify(event)}; webContents:${JSON.stringify(
-                webContents
-            )}; killed:${JSON.stringify(killed)}`
-            )
-        })
-
-        // GPU进程崩溃
-        app.on('gpu-process-crashed', (event, killed) => {
-            logger.error(`APP-ERROR:gpu-process-crashed; event: ${JSON.stringify(event)}; killed: ${JSON.stringify(killed)}`)
-        })
-
-        // 渲染进程结束
-        app.on('render-process-gone', async (event, webContents, details) => {
-            logger.error(
-            `APP-ERROR:render-process-gone; event: ${JSON.stringify(event)}; webContents:${JSON.stringify(
-                webContents
-            )}; details:${JSON.stringify(details)}`
-            )
-        })
-
-        // 子进程结束
-        app.on('child-process-gone', async (event, details) => {
-            logger.error(`APP-ERROR:child-process-gone; event: ${JSON.stringify(event)}; details:${JSON.stringify(details)}`)
-        })
-    })
-}

@@ -1,18 +1,14 @@
 import {CheckRepoActions, simpleGit, StatusResult, DefaultLogFields, SimpleGitOptions, LogOptions} from 'simple-git'
 import fs from 'fs'
 import path from 'path'
-import { execSync, exec } from 'child_process';
+import { execSync } from 'child_process';
 import {tr} from '@/electron/app/lang/translate'
 import RepoWatcher from '@/electron/watcher/RepoWatcher'
 import {AbstractRepoItem, Author, RepoStatus, BranchCreatedInfo, Branch, Repository, ContributorsRankItem, StatDailyContribute, AuthorStatDailyContributeMap, RemoteItem, Branchs, RepoFileInfo, FileStatusList, CommitFileStatus, CommitFileInfo, DiffFile} from '@/types'
 import { logger } from "@/electron/logger/init"
-import { FileInfo, Optional } from '../types'
+import { Optional } from '../types'
 import { RepositoryError } from '@/types/errorType'
-import { routeMainSend } from '@/electron/ipcAction/main/route'
 import { uuid } from '@/renderer/common/util/tools'
-import { NON_STYLE_VISUAL_PROPS } from 'echarts/types/src/chart/custom/CustomSeries.js'
-import { add } from '../../../renderer/common/util/dbUtil';
-import file from '../../app/menu/template/file';
 import { execOutputStr } from './command';
 import { inferFileTypeFromName } from './fileUtil';
 

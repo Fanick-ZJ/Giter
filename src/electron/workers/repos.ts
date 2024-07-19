@@ -5,8 +5,8 @@
 import { workerThreadEnvInit } from "../common/utils/tools"
 workerThreadEnvInit()
 
-import {RepoItem, WorkTask} from "@/types"
-import { workerData, parentPort  } from 'worker_threads'
+import { WorkTask } from "@/types"
+import { parentPort  } from 'worker_threads'
 import {getBranchCreatorInfo, getContributors, getLog, getRepositoryInfo, getContributorsRank, getContributeStat, getRepoFileList, getRepoBranch, isGitRepo, getFileContent, getFileListByHash} from "@/electron/common/utils/gitUtil.ts"
 import { logger } from "@/electron/logger/init"
 import { isPathExist } from "../common/utils/fileUtil"

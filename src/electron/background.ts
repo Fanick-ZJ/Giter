@@ -12,9 +12,7 @@ import { eventBusInit } from "./app/EventBusInit"
 // 建立全局事件总线
 // electron主进程文件
 // 初始化log
-import { init as logInit } from "./logger/init"
 initEnv()
-logInit()
 // 如果还没安装git的话，就提示安装
 if (hasGit()) {
     const giter = new Giter()

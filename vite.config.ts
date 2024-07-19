@@ -11,6 +11,9 @@ const prefix = `monaco-editor/esm/vs`
 // https://vitejs.dev/config/
 export default defineConfig({
   optimizeDeps: {
+    esbuildOptions: {
+      target: "es2022",
+    },
     include: [
       `${prefix}/language/json/json.worker`,
       `${prefix}/language/css/css.worker`,
@@ -33,6 +36,10 @@ export default defineConfig({
   },
   build: {
     outDir: OUT_DIR,
+    target: 'es2022'
+  },
+  esbuild: {
+    target: "es2022"
   },
   base: './', // 默认是绝对路径，改为相对路径 
   resolve: {

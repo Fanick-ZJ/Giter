@@ -28,7 +28,9 @@ export class SettingDialog {
                 preload: path.join(__dirname, 'app/preload/preload.js')
             }
         })
-        this.win.webContents.openDevTools()
+        if (process.env.NODE_ENV === 'development') {
+            this.win.webContents.openDevTools()
+        }
 
     }
 

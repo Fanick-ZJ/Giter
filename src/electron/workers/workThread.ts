@@ -3,7 +3,7 @@ import { logger } from "@/electron/logger/init";
 import path from "path";
 import { WorkPool } from './WorkPool';
 export function newWorker(threadName: string,options: WorkerOptions = {}) {
-    const threadFile = path.join(__dirname, 'workThreads', `${threadName}.js`)
+    const threadFile = path.join(__dirname, 'workers', `${threadName}.js`)
     return new Promise((resolve, reject) => {
         const worker = new Worker(threadFile, {
             ...options
@@ -24,7 +24,7 @@ export class WorkerThreadPoolMap {
     private constructor(){
         for (let i = 0; i < workerList.length; i++) {
             const workerName = workerList[i]
-            const workerFile = path.join(__dirname, 'workThreads', `${workerName}.js`)
+            const workerFile = path.join(__dirname, 'workers', `${workerName}.js`)
             this.poolMap.set(workerName, new WorkPool(workerFile))
         }
     }

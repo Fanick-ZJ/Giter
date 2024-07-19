@@ -42,13 +42,17 @@ const routeTo = (name: string) => {
     background-color: $right_part_background;
     .__setting__page__bar__wraper{
         width: 100%;
-        height: 30px;
+        height: 50px;
         .__setting__page__bar {
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             column-gap: 20px;
+            border-bottom: #eaedf1 1px solid;
+            font-weight: 600;
+            font-size: 18px;
+            color: gray;
             .__setting__page__bar__item-active{
                 color: rgb(235, 103, 103);
                 position: relative;
