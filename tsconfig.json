@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": false,
+    "noImplicitAny": false, // 是否在表达式和申明上有隐含的any类型时报错
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+
+    "experimentalDecorators": true,   // 允许注解,  传统语法
+    "emitDecoratorMetadata": true,   // 在编译后的JavaScript中输出装饰器元数据
+    "baseUrl": "./", // 解析非相对模块的基地址，默认当前目录
+    "paths": {
+      // 路径映射，相对于baseUrl
+      "@/*": ["src/*"]
+    },
+    "types": ["vite/client", "element-plus/global"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "exclude": [
+    "node_modules"  // Exclude the node_modules folder from the TypeScript compiler.
+  ]
+}

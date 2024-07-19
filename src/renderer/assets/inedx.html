@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Import style -->
+        <link rel="stylesheet" href="assets/index.css" />
+        <!-- Import Vue 3 -->
+        <script src="assets/vue3.js"></script>
+        <!-- Import component library -->
+        <script src="assets/element.js"></script>
+        <title>info-dialog</title>
+        <style>
+            #app{
+                padding: 20px;
+                height: 100%;
+            }
+            .icon{
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                height: 100%;
+            }
+            .message{
+                display: flex;
+                height: 100%;
+                align-items: center;/*垂直居中*/
+            }
+            .message span{
+                word-break: break-all;
+            }
+            .btn-group{
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <el-row justify="center">
+                <el-col :span="4">
+                    <div class="icon">
+                        <object width="50px" height="50px" :data="icon" type="image/svg+xml"></object>
+                    </div>
+                </el-col>
+                <el-col :span="20">
+                    <div class="message">
+                        <el-text class="mx-1">{{message}}</el-text>
+                    </div>
+                </el-col>
+            </el-row>
+            <el-row class="btn-group">
+                <el-col :span="8"></el-col>
+                <el-col :span="8">
+                    <el-button type="primary" disabled>Primary</el-button>
+                    <el-button disabled>Default</el-button>
+                </el-col>
+                <el-col :span="8"></el-col>
+            </el-row>
+        </div>
+    </body>
+</html>
+
+
+<script>
+    const App = {
+        data() {
+            return {
+                essage: "Hello Element Plus",
+                icon: '',
+                type: '',
+                message: '',
+            }
+        },
+        created(){
+            let url = window.location.href
+            let p=url.split('?')[1]
+            let params=new URLSearchParams(p)
+            this.type = params.get('type')
+            this.message = params.get('message')
+            switch (this.type){
+                case "INFO":
+                    this.icon = 'assets/info.svg'
+                    break
+                case "WARNING":
+                    this.icon = 'assets/warning.svg'
+                    break
+                case "ERROR":
+                    this.icon = 'assets/error.svg'
+                    break
+                default:
+                    this.icon = 'assets/info.svg'
+            }
+        }
+    };
+    const app = Vue.createApp(App);
+    app.use(ElementPlus);
+    app.mount("#app");
+</script>

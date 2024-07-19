@@ -1,0 +1,33 @@
+
+import { initEnv } from "./common/const/envvar"
+import { DialogType } from "@/types"
+import { TipDialog } from "./app/tipDialog"
+import Giter from "./app/giter"
+import { hasGit } from "./common/utils/gitUtil"
+import { tr } from "./app/lang/translate"
+import { app } from "electron"
+import { WindowsManager } from "./win/windowManager"
+import { actionInit } from "./app/actionInit"
+import { eventBusInit } from "./app/EventBusInit"
+// 建立全局事件总线
+// electron主进程文件
+// 初始化log
+import { init as logInit } from "./logger/init"
+initEnv()
+logInit()
+// 如果还没安装git的话，就提示安装
+if (hasGit()) {
+    const giter = new Giter()
+    giter.init()
+} else {
+    app.whenReady().then(() => {
+        const dlg = new TipDialog(undefined, DialogType.ERROR, 'dialog.theGitHaveNotInstall', tr('warn'))
+        dlg.init()
+        const windowsManager = WindowsManager.getInstance(dlg.win)
+        windowsManager.setMainWindow(dlg.win, true)
+        // IPC事件初始化
+        actionInit(windowsManager)
+        // 装在全局事件
+        eventBusInit(windowsManager)
+    })
+}

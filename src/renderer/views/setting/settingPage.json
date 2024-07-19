@@ -1,0 +1,22 @@
+[
+    {
+        "name": "general",
+        "title": "General"
+    },
+    {
+        "name": "language",
+        "title": "Language"
+    },
+    {
+        "name": "advanced",
+        "title": "Advanced"
+    },
+    {
+        "name": "about",
+        "title": "About"
+    },
+    {
+        "name": "help",
+        "title": "Help"
+    }
+]

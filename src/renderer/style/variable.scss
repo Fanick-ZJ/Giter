@@ -1,0 +1,21 @@
+// 提供全局的scss变量
+
+// 左侧仓库元素的高度
+$respoItemHeight: 30px;
+
+// 左侧仓库部分的宽度
+$respoBarWidth: 200px;
+
+$respoItemTopColor: #cbcbcb;
+
+// 左侧仓库部分文字的宽度
+$respoBarItemTitleWidth: calc($respoBarWidth - 40px);
+
+// 全局文字
+$font: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+
+// 菜单项高度
+$menu-item-height: 25px;
+
+// 右侧背景色
+$right_part_background: #f7f9fc;

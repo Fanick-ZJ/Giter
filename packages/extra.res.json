@@ -1,0 +1,7 @@
+[
+    {
+        "origin": ["public", "config.db"],
+        "dev": ["data", "config.db"],
+        "build": ["data", "config.db"]
+    }
+]

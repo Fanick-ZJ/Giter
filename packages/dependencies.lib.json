@@ -1,0 +1,7 @@
+[
+    {
+        "origin": ["node_modules", "better-sqlite3", "build", "Release", "better_sqlite3.node"],
+        "dev": ["better_sqlite3.node"],
+        "build": ["build", "better_sqlite3.node"]
+    }
+]
