@@ -4,18 +4,22 @@ import { fork, ChildProcess } from 'child_process'
 import { SendMsg } from '../process/repoWatcher/types'
 import { EventBus } from '../event/EventBus';
 import { logger } from "@/electron/logger/init"
+import { WindowsManager } from "../win/windowManager"
+import { repoMainSend } from "../ipcAction/main/repository"
 
 export default class RepoWatcherProcess {
 
     private static instance: RepoWatcherProcess
     private _process: ChildProcess
-    private bus = EventBus.getInstance()
+    private mainWin = WindowsManager.getInstance().getMain()
 
     private constructor(){
         this._process = fork(path.join(__dirname, 'process', 'repoWatcher','index.js'), {silent: true, env: process.env})
         this._process.on('message', (msg: SendMsg) => {
             if (msg.tag === 'change') {
-                this.bus.$emit('repos::switch-repos-status', {repos: msg.data.repos, status: msg.data.status})
+                if (this.mainWin) {
+                    repoMainSend.switchRepoStatus(this.mainWin, {repos: msg.data.repos, status: msg.data.status})
+                }
             }
             else if (msg.tag === 'unwatched') {
                 logger.info(`stop to watch ${msg.data.repos.path}`)

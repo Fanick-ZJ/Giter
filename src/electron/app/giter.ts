@@ -2,7 +2,6 @@ import { BrowserWindow, Menu, app, contentTracing, session } from "electron"
 import path from 'path'
 import { mainMenu } from "./menu/template"
 import { actionInit } from "./actionInit"
-import { eventBusInit } from "./EventBusInit"
 import { WindowsManager } from "../win/windowManager"
 export default class Giter{
 
@@ -59,8 +58,6 @@ export default class Giter{
             this._windowsManager.setMainWindow(this.win, true)
             // IPC事件初始化
             actionInit(this._windowsManager)
-            // 装在全局事件
-            eventBusInit(this._windowsManager)
         }
 
     }

@@ -13,11 +13,13 @@ import { EventBus } from "@/electron/event/EventBus"
 import { TipDialog } from "@/electron/app/tipDialog/index"
 import { extractIcon } from "@/electron/common/utils/winUtil"
 import { OpenWithDB } from "@/electron/database/openWithDB"
+import { WindowsManager } from "@/electron/win/windowManager"
 
 export class ExplorerService extends IpcMainBasicService{
     bus = EventBus.getInstance()
     win: BrowserWindow
     openWithDB = new OpenWithDB()
+    wm = WindowsManager.getInstance()
     
     constructor(win: BrowserWindow){
         super('explorer')
@@ -30,7 +32,7 @@ export class ExplorerService extends IpcMainBasicService{
             if (error){
                 this.bus.$emit('log::record', {title: '打开文件管理器错误', level: 'error', content: `打开文件浏览器错误，路径为：${path}`})
                 const dialog = new TipDialog(this.win, DialogType.WARNING, tr('failed_to_open_explorer'), tr('error'))
-                this.bus.$emit('window::addNewWindow', {window: dialog.getWindow()})
+                this.wm.add(dialog.getWindow())
                 dialog.init()
             }else {
                 if (stats.isDirectory()) {

@@ -7,9 +7,11 @@ import  {BrowserWindow }  from "electron"
 import { IpcMainBasicService } from "./ipcMainBasicService"
 import { IpcAction, IpcActionEnum } from "../decorators/ipcAction"
 import { logger } from "@/electron/logger/init"
+import { WindowsManager } from "@/electron/win/windowManager"
 
 export class DialogService extends IpcMainBasicService{
     win: TBrowserWindow
+    wm = WindowsManager.getInstance()
     constructor(win: TBrowserWindow){
         super('dialog')
         this.win = win
@@ -18,7 +20,7 @@ export class DialogService extends IpcMainBasicService{
     @IpcAction(IpcActionEnum.ipcMainOn)
     closeDialog(event: IpcMainEvent, wid: number) {
         const bus = EventBus.getInstance()
-        bus.$emit('window::removeWindow', {wid})
+        this.wm.remove(wid)
     }
 
     @IpcAction(IpcActionEnum.ipcMainOn)
@@ -26,9 +28,9 @@ export class DialogService extends IpcMainBasicService{
         const bus = EventBus.getInstance()
         // 渲染进程传入要翻译的文字，主进程进行翻译
         const curWin = BrowserWindow.getFocusedWindow() as TBrowserWindow
-        const dialog = new TipDialog(curWin, DialogType.WARNING, content, tr(title))
-        bus.$emit('window::addNewWindow', {window: dialog.getWindow()})
-        dialog.init()
+        const dlg = new TipDialog(curWin, DialogType.WARNING, content, tr(title))
+        this.wm.add(dlg.getWindow())
+        dlg.init()
     }
 
     @IpcAction(IpcActionEnum.ipcMainOn)
@@ -36,8 +38,8 @@ export class DialogService extends IpcMainBasicService{
         const bus = EventBus.getInstance()
         // 渲染进程传入要翻译的文字，主进程进行翻译
         const curWin = BrowserWindow.getFocusedWindow() as TBrowserWindow
-        const dialog = new TipDialog(curWin, DialogType.ERROR, content, tr(title))
-        bus.$emit('window::addNewWindow', {window: dialog.getWindow()})
-        dialog.init()
+        const dlg = new TipDialog(curWin, DialogType.ERROR, content, tr(title))
+        this.wm.add(dlg.getWindow())
+        dlg.init()
     }
 }

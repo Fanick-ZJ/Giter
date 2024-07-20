@@ -9,7 +9,7 @@ import fs from 'fs'
 import fsPromise from "fs/promises"
 import { RepositoryDB } from '@/electron/database/repositoryDB'
 import RepoWatcherProcess from '@/electron/watcher/RepoWatcher'
-import { RepoStatus } from '@/types'
+import { repoMainSend } from "@/electron/ipcAction/main/repository"
 
 
 export const importRespo = (window: BrowserWindow) => {
@@ -45,7 +45,7 @@ export const importRespo = (window: BrowserWindow) => {
             }
             const watcher = RepoWatcherProcess.getInstance()
             watcher.addRepo(repo)
-            bus.$emit('repos::render-add-repos', window, repo)
+            repoMainSend.renderAddRepo(window, repo)
         }else{
             ipcMain.emit('dialog::showWarnDialog', null, 'warn', 'dialog.isNotARepo')
         }
@@ -88,7 +88,7 @@ export const addMoreRepos = (window: BrowserWindow) => {
                     }
                     const watcher = RepoWatcherProcess.getInstance()
                     watcher.addRepo(repo)
-                    bus.$emit('repos::render-add-repos', window, repo)
+                    repoMainSend.renderAddRepo(window, repo)
                 }else{
                     ipcMain.emit('dialog::showWarnDialog', null, 'warn', 'dialog.isNotARepo')
                 }

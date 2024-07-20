@@ -8,7 +8,6 @@ import { tr } from "./app/lang/translate"
 import { app } from "electron"
 import { WindowsManager } from "./win/windowManager"
 import { actionInit } from "./app/actionInit"
-import { eventBusInit } from "./app/EventBusInit"
 // 建立全局事件总线
 // electron主进程文件
 // 初始化log
@@ -25,7 +24,5 @@ if (hasGit()) {
         windowsManager.setMainWindow(dlg.win, true)
         // IPC事件初始化
         actionInit(windowsManager)
-        // 装在全局事件
-        eventBusInit(windowsManager)
     })
 }
