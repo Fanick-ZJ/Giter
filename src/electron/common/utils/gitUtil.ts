@@ -144,6 +144,12 @@ export const isCommited = (path: string): Promise<boolean> => {
     }
 }
 
+const getBranchInRemote = (path: string, branch: string): Promise<string> => {
+    fs.statSync(path)
+    const repos = simpleGit(path)
+    return repos.raw(['config', `branch.${branch}.remote`])
+}
+
 /**
  * 判断给定路径的仓库是否已提交
  * @param path 
@@ -152,9 +158,10 @@ export const isCommited = (path: string): Promise<boolean> => {
 export const isPushed = (path: string): Promise<boolean> => {
         fs.statSync(path)
         const repos = simpleGit(path)
-        return getCurrentBranch(path).then((branch) => {
+        return getCurrentBranch(path).then(async (branch) => {
             // 只选择根目录进行判断是不是仓库
-            return repos.raw(['cherry', '-v', branch]).then( (res: string) => {
+            const remote = await (await getBranchInRemote(path, branch)).trim()
+            return repos.raw(['cherry', `${remote}/${branch}`]).then( (res: string) => {
                 return new Promise(resolve => {
                     resolve(res.length == 0)
                 })
