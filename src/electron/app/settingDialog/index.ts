@@ -16,7 +16,7 @@ export class SettingDialog {
         this.win = new BrowserWindow({
             parent,
             modal: true,
-            width: 800,
+            width: 900,
             height: 600,
             minWidth: 400,
             minHeight: 300,

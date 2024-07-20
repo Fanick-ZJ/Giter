@@ -10,7 +10,6 @@
                 :key="file.objectName"
                 :width="width"
                 :height="height"
-                v-context-menu="menuOption"
                 :icon="getIconByExt(file.name)">
             </Icon>
         </el-tooltip>
@@ -39,16 +38,6 @@ const props = defineProps({
 })
 
 const i18n = useI18n()
-const menuOption: CustomMouseMenuOptions = {
-        menuItemCss: {
-            arrowSize: '8px',
-            labelFontSize: '12px'
-        },
-        menuList: [
-            createMenuItem(i18n.t('openedFile.close'), [], ()=>{console.log('close')}),
-        ],
-        menuWidth: 100,
-    }
 </script>
 
 <style lang="scss" scoped>

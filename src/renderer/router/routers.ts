@@ -122,7 +122,7 @@ export const constantRoute = [
             {
                 // 关于界面
                 path: '/setting/about',
-                component: () => import('@/renderer/views/setting/about.vue'),
+                component: () => import('@/renderer/views/setting/about/index.vue'),
                 name: 'setting.about',
             },
             {

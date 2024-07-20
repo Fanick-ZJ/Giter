@@ -15,7 +15,7 @@ type CustomEditor = {
 }
 
 const containerName = '__editor__container'
-const wrapperName = '__editorw__rapper'
+const wrapperName = '__editor__wrapper'
 
 let observer: MutationObserver
 function BuildCustomEditor (option: CustomEditorOptions): CustomEditor {
@@ -62,6 +62,7 @@ const createObserver = (value: CustomEditorOptions) => {
         })
     })
     const editorEl = document.querySelector(`div.${wrapperName}[data-objhash="${value.objhash}"]`) as HTMLElement
+    console.log(`div.${wrapperName}[data-objhash="${value.objhash}"]`)
     observer.observe(editorEl, { 
         attributes: true,
         attributeFilter: ['class'],
