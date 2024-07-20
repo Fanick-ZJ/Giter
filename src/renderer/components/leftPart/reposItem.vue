@@ -4,6 +4,8 @@
         effect="light"
         :disabled="!isOverFlow()"
         :content="repos.name"
+        trigger="hover"
+        :virtual-ref="titleRef"
         placement="right"
     >
         <div @click="itemClick"
@@ -18,7 +20,7 @@
                 :size="{width: 20, height: 20}"/>
             <div :style="{flex: remoteSiteInfo.length > 0 ? 1 : 0.8}">
                 <div
-                    ref="title"
+                    ref="titleRef"
                     class="title"
                 >{{ repos.name }}</div>
                 <delete-line v-if="!repos.isExist"/>
@@ -208,10 +210,10 @@ import { RepoService } from '@/electron/service/entity/repoService'
     }
     
     // 判断文本是否溢出
-    const title = ref<HTMLElement>()
+    const titleRef = ref<HTMLElement>()
     const isOverFlow = () => {
-        if (title.value){
-            return title.value?.scrollWidth > title.value?.clientWidth
+        if (titleRef.value){
+            return titleRef.value?.scrollWidth > titleRef.value?.clientWidth
         }
         return false
     }
