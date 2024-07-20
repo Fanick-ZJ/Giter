@@ -9,14 +9,20 @@
             v-if="siteIcons.length > 0"
             :siteIcons="siteIcons"
             :size="{width: 20, height: 20}"/>
-        <div
-        :style="{flex: remoteSiteInfo.length > 0 ? 1 : 0.8}">
-            <div
-                ref="title"
-                class="title"
-                :class="isOverFlow() ?  'title-tip': ''"
-                :data-title="repos.name"
-            >{{ repos.name }}</div>
+        <div :style="{flex: remoteSiteInfo.length > 0 ? 1 : 0.8}">
+            <el-tooltip
+                class="box-item"
+                effect="light"
+                :disabled="!isOverFlow()"
+                :content="repos.name"
+                placement="right"
+            >
+                <div
+                    ref="title"
+                    class="title"
+                    :data-title="repos.name"
+                >{{ repos.name }}</div>
+            </el-tooltip>
             <delete-line v-if="!repos.isExist"/>
             <div 
                 ref="status_light"
@@ -245,7 +251,6 @@ import { RepoService } from '@/electron/service/entity/repoService'
     .title-tip::after{
         content: attr(data-title);
         pointer-events: none;   // 取消鼠标事件
-        display: inline-block;
         padding: 5px 5px;
         font-size: 15px;
         border: 1px solid #ddd;
