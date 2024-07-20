@@ -1,44 +1,43 @@
 <template>
-    <div @click="itemClick"
-        v-context-menu="menuOption"
-        :data-path="repos.path"
-        :class="[repos.isTop?'isTop':'', !isChosed?'no-chosed':'chosed']"
-        class="respoItem">
-        <remote-repo-site-icon-card
-            style="margin-right: 5px; flex: 0.2;"
-            v-if="siteIcons.length > 0"
-            :siteIcons="siteIcons"
-            :size="{width: 20, height: 20}"/>
-        <div :style="{flex: remoteSiteInfo.length > 0 ? 1 : 0.8}">
-            <el-tooltip
-                class="box-item"
-                effect="light"
-                :disabled="!isOverFlow()"
-                :content="repos.name"
-                placement="right"
-            >
+    <el-tooltip
+        class="box-item"
+        effect="light"
+        :disabled="!isOverFlow()"
+        :content="repos.name"
+        placement="right"
+    >
+        <div @click="itemClick"
+            v-context-menu="menuOption"
+            :data-path="repos.path"
+            :class="[repos.isTop?'isTop':'', !isChosed?'no-chosed':'chosed']"
+            class="respoItem">
+            <remote-repo-site-icon-card
+                style="margin-right: 5px; flex: 0.2;"
+                v-if="siteIcons.length > 0"
+                :siteIcons="siteIcons"
+                :size="{width: 20, height: 20}"/>
+            <div :style="{flex: remoteSiteInfo.length > 0 ? 1 : 0.8}">
                 <div
                     ref="title"
                     class="title"
-                    :data-title="repos.name"
                 >{{ repos.name }}</div>
-            </el-tooltip>
-            <delete-line v-if="!repos.isExist"/>
-            <div 
-                ref="status_light"
-                class="status-light"
-                :class="repos.status == RepoStatus.UNCOMMIT?'unCommit'
-                        :repos.status == RepoStatus.UNPUSH? 'unPush'
-                        :'normal'">
+                <delete-line v-if="!repos.isExist"/>
+                <div 
+                    ref="status_light"
+                    class="status-light"
+                    :class="repos.status == RepoStatus.UNCOMMIT?'unCommit'
+                            :repos.status == RepoStatus.UNPUSH? 'unPush'
+                            :'normal'">
+                </div>
+                <status-message-box
+                    ref="status_message_box"
+                    :repo="repos"
+                    :pos="tipMessagePos"
+                    :showing="statues_bar_show">
+                </status-message-box>
             </div>
-            <status-message-box
-                ref="status_message_box"
-                :repo="repos"
-                :pos="tipMessagePos"
-                :showing="statues_bar_show">
-            </status-message-box>
         </div>
-    </div>
+    </el-tooltip>
 </template>
 
 <script setup lang="ts">
