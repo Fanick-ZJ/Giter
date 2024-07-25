@@ -1,13 +1,33 @@
 <template>
     <div class="grap-container" v-loading="loading">
-        <el-row class="top-bar">
-            <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.current_branch') }}</el-text>
-            <el-col :span="8" class="select-box">
-                <branch-select-bar :repo-info="respoItem" size="small" @change="branchChange"/>
+        <el-row class="top-bar" justify="space-between">
+            <el-col :span="10" class="select-box">
+                <el-text class="select-label" size="default">{{ $t('commitGraph.current_branch') }}</el-text>
+                <branch-select-bar
+                 :repo-info="respoItem" 
+                 size="small"
+                @change="branchChange"
+                style="width: 200px"/>
+            </el-col>
+            <el-col :span="4" class="filter-box hidden-lg-and-up" data-size-small>
+                <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.filter') }} </el-text>
+                <el-popover placement="bottom" :width="400" :visible="filterVisible">
+                <template #reference>
+                    <el-text size="large" @click="() => filterVisible= true">⬇️ </el-text>
+                </template>
+                <div>
+                    <commit-filter 
+                        @filter-result="filterResult"
+                        :authors="authorList"></commit-filter>
+                </div>
+                </el-popover>
+            </el-col>
+            <el-col :span="14" class="filter-box hidden-md-and-down">
+                <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.filter') }}</el-text>
             </el-col>
         </el-row>
         <el-row v-auto-animate class="commit-container">
-            <template v-for="item in commitList.slice((currentPage - 1) * pageSize, (currentPage) * pageSize)" :key="item.hash">
+            <template v-for="item in filteredCommitList.slice((currentPage - 1) * pageSize, (currentPage) * pageSize)" :key="item.hash">
                 <commit-detail-item :detail="item" :repo="respoItem!"/>
             </template>
         </el-row>
@@ -19,7 +39,7 @@
                 :small="true"
                 :background="true"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="commitList.length"
+                :total="filteredCommitList.length"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
             />
@@ -38,6 +58,7 @@ import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
 import { onRouteChangeUpdate } from '@/renderer/common/hook/useRouter';
+import commitFilter from '@/renderer/components/commitGraph/commitFilter.vue'
 
 defineOptions({ name: 'commitGraph' })
 const route = useRoute();
@@ -51,6 +72,8 @@ const loading = ref(true)
 const commitList = ref<CommitDetail[]>([])
 const repoTaskService = new RepoTaskService()
 
+const authorList = computed(() => Array.from(new Set(commitList.value.map((item) => item.author_name))))
+
 const mountedFn = () => {
     if (respoItem.value) {
         repoTaskService.getRepoBranch(respoItem.value.path).then((res: Branchs) => {
@@ -63,6 +86,7 @@ const mountedFn = () => {
 
 onRouteChangeUpdate(() => {
     mountedFn()
+    clearFilter()
 })
 
 onMounted(() => {
@@ -80,6 +104,53 @@ const branchChange = (value: string) => {
     }
 }
 
+const filterVisible = ref(false)
+const filteredContributor = ref<string>()
+const filteredTimeRange = ref<[Date, Date]>()
+const filteredMessage = ref<string>()
+
+// 过滤结果
+/**
+ * @param success 是否过滤成功
+ * @param author 过滤的作者
+ * @param time 过滤的时间范围
+ * @param message 过滤的提交信息
+ */
+const filterResult = (success: boolean, author?: string, time?: [Date, Date], message?: string) => {
+    filterVisible.value = false
+    console.log('filterResult', success, time, author, message)
+    if (success) {
+        filteredContributor.value = author
+        filteredTimeRange.value = time
+        filteredMessage.value = message
+    }
+}
+
+// 过滤后的提交列表
+const filteredCommitList = computed(() => {
+    let _commitList: CommitDetail[] = commitList.value
+    if (commitList.value) {
+        if (filteredContributor.value) {
+            _commitList = _commitList.filter((item) => item.author_name === filteredContributor.value)
+        }
+        if (filteredTimeRange.value) {
+            _commitList = _commitList.filter((item) => {
+                const date = new Date(item.date)
+                return date >= filteredTimeRange.value![0] && date <= filteredTimeRange.value![1]
+            })
+        }
+        if (filteredMessage.value) {
+            _commitList = _commitList.filter((item) => item.message.includes(filteredMessage.value!))
+        }
+    }
+    return _commitList
+})
+
+const clearFilter = () => {
+    filteredContributor.value = undefined
+    filteredTimeRange.value = undefined
+    filteredMessage.value = undefined
+}
 
 const currentPage = ref<number>(1)
 const pageSize = ref<number>(10)
@@ -96,6 +167,7 @@ const handleCurrentChange = (val: number) => {
 </script>
 
 <style lang="scss" scoped>
+@import "element-plus/theme-chalk/display.css";
     $top_bottom_height: 30px;
     * {
         font-family: $font;
@@ -110,19 +182,20 @@ const handleCurrentChange = (val: number) => {
     }
     .top-bar{
         width: 100%;
-        top: 0;
         z-index: 2;
         background-color: $right_part_background;
-        position: absolute;
         height: $top_bottom_height;
         padding: 0 10px;
+        margin-bottom: 10px;
+        position: relative;
     }
-    .top-bar::before{
+    .top-bar::after{
         content: "";
         height: calc($top_bottom_height + 10px);
         width: 100%;
         background-color: $right_part_background;
         position: absolute;
+        bottom: -20px;
         filter: blur(5px);
         z-index: -1;
     }
@@ -137,13 +210,23 @@ const handleCurrentChange = (val: number) => {
     }
     .select-box{
         display: flex;
-        flex-direction: column;
-        justify-content: center;
+        align-items: center;
+    }
+    .filter-box{
+        padding: 0px 10px;
+        border-radius: 10px;
+        border: #bdbdbd86 solid 1px;
+        display: grid;
+        grid-template-columns: 50px 1fr;
+        &[data-size-small]{
+            &:nth-child(2) {
+                text-align: center;
+            }
+        }
     }
     .commit-container {
         display: block;
         height: calc(100% - 2 * $top_bottom_height);
-        margin-top: $top_bottom_height;
         overflow-y: scroll;
         overflow-x: hidden;
         padding: 0 10px;

@@ -8,7 +8,15 @@ export default {
     },
     commitGraph: {
         current_branch: '分支',
-        affected_branch: '影响分支'
+        affected_branch: '影响分支',
+        filter: '筛选'
+    },
+    commitFilter: {
+        time: "时间",
+        author: "作者",
+        message: "详情",
+        search: "搜索",
+        cancel: "取消"
     },
     menu: {
         del: '删除',

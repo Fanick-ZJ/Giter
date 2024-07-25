@@ -7,6 +7,14 @@ export default {
     commitGraph: {
         current_branch: "Branch",
         affected_branch: 'Affected branches',
+        filter: 'Filter'
+    },
+    commitFilter: {
+        time: "Time",
+        author: "Author",
+        message: "Message",
+        search: "Search",
+        cancel: "Cancel",
     },
     menu: {
         del: 'Delete',
