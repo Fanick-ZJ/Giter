@@ -3,6 +3,7 @@ import path from 'path'
 import { dependencies } from './dependencies.lib'
 import others from './extra.res.json'
 import { OUT_DIR } from './const'
+import esbuild from 'esbuild'
 
 const externalModel = ['electron', 'better-sqlite3']
 
@@ -28,7 +29,7 @@ const preload = traverseFolder(path.join(path.dirname(__dirname), 'src', 'electr
 //打包预加载文件
 const buildBackground = () => {
     // 使用esbuild将ts文件编译为js文件
-    require('esbuild').buildSync({
+    esbuild.buildSync({
         entryPoints: ['src/electron/background.ts', ...preload],
         bundle: true,
         outdir: `${OUT_DIR}/electron/`,
@@ -43,7 +44,7 @@ const buildBackground = () => {
 const workThreads = traverseFolder(path.join(path.dirname(__dirname), 'src', 'electron', 'workers'), path.join(path.dirname(__dirname)))
 // 打包获取工作线程文件
 const buildWorkThreads = () => {
-    require('esbuild').buildSync({
+    esbuild.buildSync({
         entryPoints: workThreads,
         bundle: true,
         outdir: `${OUT_DIR}/electron/workers`,
@@ -58,7 +59,7 @@ const buildWorkThreads = () => {
 const childProcess = traverseFolder(path.join(path.dirname(__dirname), 'src', 'electron', 'process'), path.join(path.dirname(__dirname)))
 // 打包获取工作线程文件
 const subProcess = () => {
-    require('esbuild').buildSync({
+    esbuild.buildSync({
         entryPoints: childProcess,
         bundle: true,
         outdir: `${OUT_DIR}/electron/process`,

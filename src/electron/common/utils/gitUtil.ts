@@ -1,10 +1,13 @@
+/**
+ * git工具类, 要在工作者线程中使用，不能出现、间接引用electron中的对象
+ */
+
 import {CheckRepoActions, simpleGit, StatusResult, DefaultLogFields, SimpleGitOptions, LogOptions} from 'simple-git'
 import fs from 'fs'
 import path from 'path'
 import { execSync } from 'child_process';
 import {tr} from '@/electron/app/lang/translate'
-import RepoWatcher from '@/electron/watcher/RepoWatcher'
-import {AbstractRepoItem, Author, RepoStatus, BranchCreatedInfo, Branch, Repository, ContributorsRankItem, StatDailyContribute, AuthorStatDailyContributeMap, RemoteItem, Branchs, RepoFileInfo, FileStatusList, CommitFileStatus, CommitFileInfo, DiffFile} from '@/types'
+import { Author, RepoStatus, BranchCreatedInfo, Branch, Repository, ContributorsRankItem, StatDailyContribute, AuthorStatDailyContributeMap, RemoteItem, Branchs, RepoFileInfo, FileStatusList, CommitFileStatus, CommitFileInfo, DiffFile} from '@/types'
 import { logger } from "@/electron/logger/init"
 import { Optional } from '../types'
 import { RepositoryError } from '@/types/errorType'
@@ -191,22 +194,6 @@ export const getStatus = (path: string): Promise<RepoStatus> => {
         return Promise.resolve(RepoStatus.UNKNOW)
     })
     return result
-}
-
-/**
- * 添加一个仓库监听器，监听仓库状态的变化
- * @param repos
- * @returns 
- */
-export const addRepoWatcher = (repos: AbstractRepoItem): Promise<boolean> => {
-    try{
-        // logger.info('添加',repos.name,'监视')
-        const watcher = RepoWatcher.getInstance()
-        watcher.addRepo(repos)
-        return Promise.resolve(true)
-    }catch(e){
-        throw new RepositoryError(repos.path, "", tr('add_watcher_failed'))
-    }
 }
 
 /**

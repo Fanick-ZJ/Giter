@@ -2,10 +2,29 @@ import { AbstractRepoItem } from '@/types'
 import path from 'path'
 import { fork, ChildProcess } from 'child_process'
 import { SendMsg } from '../process/repoWatcher/types'
-import { EventBus } from '../event/EventBus';
 import { logger } from "@/electron/logger/init"
 import { WindowsManager } from "../win/windowManager"
 import { repoMainSend } from "../ipcAction/main/repository"
+import RepoWatcher from '@/electron/watcher/RepoWatcher';
+import { tr } from '../app/lang/translate'
+import { RepositoryError } from '@/types/errorType'
+
+
+/**
+ * 添加一个仓库监听器，监听仓库状态的变化
+ * @param repos
+ * @returns 
+ */
+export const addRepoWatcher = (repos: AbstractRepoItem): Promise<boolean> => {
+    try{
+        // logger.info('添加',repos.name,'监视')
+        const watcher = RepoWatcher.getInstance()
+        watcher.addRepo(repos)
+        return Promise.resolve(true)
+    }catch(e){
+        throw new RepositoryError(repos.path, "", tr('add_watcher_failed'))
+    }
+}
 
 export default class RepoWatcherProcess {
 
