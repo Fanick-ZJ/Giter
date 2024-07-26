@@ -117,7 +117,7 @@ export default defineComponent({
         const fileStore = useFileStore()
         const destory = () => {
             const wrapper = document.querySelector(`div.__editor__wrapper[data-objhash='${props.objhash}']`)
-            wrapper?.classList.add('delete')
+            wrapper?.classList.add('deleted')
             fileStore.removeOpenedFile(props.objhash)
         }
         let beginX = 0

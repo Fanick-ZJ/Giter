@@ -6,18 +6,18 @@
                 <el-date-picker
                     v-model="time"
                     type="daterange"
-                    start-placeholder="Start date"
-                    end-placeholder="End date"
+                    :start-placeholder="$t('commitFilter.startDate')"
+                    :end-placeholder="$t('commitFilter.endDate')"
                     style="width: 312px;"
                 />
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="4" class="__commit__filter__label">{{ $t('commitFilter.author') }}</el-col>
+            <el-col :span="4" class="__commit__filter__label">{{ $t('commitFilter.contributor') }}</el-col>
             <el-col :span="20">
-                <el-select v-model="chosedAuthor" placeholder="Select" :clearable="true">
+                <el-select v-model="chosedContributor" placeholder="Select" :clearable="true">
                     <el-option
-                        v-for="item in authors"
+                        v-for="item in contributors"
                         :key="item"
                         :label="item"
                         :value="item"
@@ -32,10 +32,10 @@
             </el-col>
         </el-row>
         <el-row justify="end">
-            <el-col :span="12">
+            <div>
                 <el-button type="danger" :icon="Close" @click="() => $emit('filterResult', false)">{{ $t('commitFilter.cancel') }}</el-button>
                 <el-button type="primary" :icon="Search" @click="clickSuccess">{{ $t('commitFilter.search') }}</el-button>
-            </el-col>
+            </div>
         </el-row>
     </div>
 </template>
@@ -49,7 +49,7 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps({
-    authors: {
+    contributors: {
         type: Array<string>,
         default: []
     },
@@ -58,7 +58,7 @@ const props = defineProps({
         required: false
     }
 })
-const chosedAuthor = ref('')
+const chosedContributor = ref('')
 const time = ref<[Date, Date]>([
     new Date(),
     new Date()
@@ -67,7 +67,7 @@ const time = ref<[Date, Date]>([
 const message = ref('')
 
 const clickSuccess = () => {
-    emit('filterResult', true, chosedAuthor.value, time.value, message.value)
+    emit('filterResult', true, chosedContributor.value, time.value, message.value)
 }
 
 

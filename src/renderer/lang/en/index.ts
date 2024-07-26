@@ -11,10 +11,12 @@ export default {
     },
     commitFilter: {
         time: "Time",
-        author: "Author",
+        contributor: "Contributor",
         message: "Message",
         search: "Search",
         cancel: "Cancel",
+        startDate: "Start Date",
+        endDate: "End Date"
     },
     menu: {
         del: 'Delete',

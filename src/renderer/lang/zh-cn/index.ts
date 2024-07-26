@@ -1,4 +1,3 @@
-import CommitDetailItem from "@/renderer/components/commitGraph/commitDetailItem.vue";
 
 export default {
     _: '',
@@ -13,10 +12,12 @@ export default {
     },
     commitFilter: {
         time: "时间",
-        author: "作者",
+        contributor: "贡献者",
         message: "详情",
         search: "搜索",
-        cancel: "取消"
+        cancel: "取消",
+        startDate: "开始日期",
+        endDate: "结束日期"
     },
     menu: {
         del: '删除',

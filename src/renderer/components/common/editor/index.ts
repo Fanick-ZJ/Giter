@@ -17,7 +17,7 @@ type CustomEditor = {
 const containerName = '__editor__container'
 const wrapperName = '__editor__wrapper'
 
-let observer: MutationObserver
+let observerMap: Map<string, MutationObserver> = new Map()
 function BuildCustomEditor (option: CustomEditorOptions): CustomEditor {
     let container = createClassDom('div', containerName)
     container.dataset.objhash = option.objhash
@@ -43,7 +43,7 @@ const beforeHideHandle = (el: HTMLElement, options: CustomEditorOptions) => {
 }
 
 const createObserver = (value: CustomEditorOptions) => {
-    observer = new MutationObserver((muationRecords) => {
+    let observer = new MutationObserver((muationRecords) => {
         muationRecords.forEach( item => {
             if (item.attributeName == 'class') {
                 const ele = item.target as HTMLElement
@@ -62,23 +62,23 @@ const createObserver = (value: CustomEditorOptions) => {
         })
     })
     const editorEl = document.querySelector(`div.${wrapperName}[data-objhash="${value.objhash}"]`) as HTMLElement
-    console.log(`div.${wrapperName}[data-objhash="${value.objhash}"]`)
     observer.observe(editorEl, { 
         attributes: true,
         attributeFilter: ['class'],
     })
+    observerMap.set(value.objhash, observer)
 }
 
 const mounted = (el: HTMLElement, binding: DirectiveBinding<CustomEditorOptions>) => {
     const { value } = binding
     el.addEventListener('click', () => {
-        let container = document.querySelector(`div.${containerName}[data-objhash="${value.objhash}"]`)
+        let container = document.querySelector(`div.${containerName}[data-objhash='${value.objhash}']`)
         // 如果容器不存在，则创建一个
         if (!container) {
             const res = BuildCustomEditor(value)
             createObserver(value)
         }
-        const editorEl = document.querySelector(`div.${wrapperName}[data-objhash="${value.objhash}"]`) as HTMLElement
+        const editorEl = document.querySelector(`div.${wrapperName}[data-objhash='${value.objhash}']`) as HTMLElement
         editorEl.classList.add('active')
     })
 }
@@ -88,7 +88,8 @@ const beforeUnmount = (el: HTMLElement, binding: DirectiveBinding<CustomEditorOp
     const container = document.querySelector(`[data-objhash="${value.objhash}"]`)
     if (container) {
         container.remove()
-        observer.disconnect()
+        observerMap.get(value.objhash)?.disconnect()
+        observerMap.delete(value.objhash)
     }
 }
 

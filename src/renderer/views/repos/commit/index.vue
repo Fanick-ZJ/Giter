@@ -9,7 +9,7 @@
                 @change="branchChange"
                 style="width: 200px"/>
             </el-col>
-            <el-col :span="4" class="filter-box hidden-lg-and-up" data-size-small>
+            <el-col :span="4" class="filter-box" data-size-small>
                 <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.filter') }} </el-text>
                 <el-popover placement="bottom" :width="400" :visible="filterVisible">
                 <template #reference>
@@ -18,12 +18,9 @@
                 <div>
                     <commit-filter 
                         @filter-result="filterResult"
-                        :authors="authorList"></commit-filter>
+                        :contributors="contributorsList"></commit-filter>
                 </div>
                 </el-popover>
-            </el-col>
-            <el-col :span="14" class="filter-box hidden-md-and-down">
-                <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.filter') }}</el-text>
             </el-col>
         </el-row>
         <el-row v-auto-animate class="commit-container">
@@ -72,7 +69,7 @@ const loading = ref(true)
 const commitList = ref<CommitDetail[]>([])
 const repoTaskService = new RepoTaskService()
 
-const authorList = computed(() => Array.from(new Set(commitList.value.map((item) => item.author_name))))
+const contributorsList = computed(() => Array.from(new Set(commitList.value.map((item) => item.author_name))))
 
 const mountedFn = () => {
     if (respoItem.value) {
@@ -86,7 +83,6 @@ const mountedFn = () => {
 
 onRouteChangeUpdate(() => {
     mountedFn()
-    clearFilter()
 })
 
 onMounted(() => {
@@ -118,13 +114,17 @@ const filteredMessage = ref<string>()
  */
 const filterResult = (success: boolean, author?: string, time?: [Date, Date], message?: string) => {
     filterVisible.value = false
-    console.log('filterResult', success, time, author, message)
     if (success) {
         filteredContributor.value = author
         filteredTimeRange.value = time
         filteredMessage.value = message
     }
 }
+
+onRouteChangeUpdate(() => {
+    clearFilter()
+    filterVisible.value = false
+})
 
 // 过滤后的提交列表
 const filteredCommitList = computed(() => {
@@ -217,7 +217,7 @@ const handleCurrentChange = (val: number) => {
         border-radius: 10px;
         border: #bdbdbd86 solid 1px;
         display: grid;
-        grid-template-columns: 50px 1fr;
+        grid-template-columns: 60px 1fr;
         &[data-size-small]{
             &:nth-child(2) {
                 text-align: center;
