@@ -22,6 +22,7 @@ import { createMenuItem } from '@/renderer/common/util/contextMenuUtil';
 import { getExt, getIconByExt } from '@/renderer/common/util/file';
 import { CustomMouseMenuOptions } from '@/renderer/components/common/contextMenu/types';
 import { useI18n } from 'vue-i18n'
+import { onUpdated } from 'vue';
 const props = defineProps({
     file: {
         type: Object,

@@ -4,7 +4,7 @@ export type CustomEditorOptions = {
     fileType: string
     fileContent: string
     readOnly: boolean
-    objhash: string
+    objectName: string
     hideHandle: () => void
     teleport?: string
 }

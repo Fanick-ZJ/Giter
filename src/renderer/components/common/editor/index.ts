@@ -1,8 +1,9 @@
-import { ComponentPublicInstance, Directive, DirectiveBinding, ObjectDirective, createVNode, render } from 'vue'
+import { ComponentPublicInstance, Directive, DirectiveBinding, ObjectDirective, VNode, createVNode, render } from 'vue';
 import Editor from './index.vue'
 import { CustomEditorOptions } from './types'
 import { createClassDom } from '@/renderer/common/util/domUtil'
 import { contain } from 'echarts/types/src/scale/helper.js'
+import { useFileStore } from '@/renderer/store/modules/files';
 
 // 组件全局安装
 Editor.install = (app: any) => {
@@ -18,9 +19,9 @@ const containerName = '__editor__container'
 const wrapperName = '__editor__wrapper'
 
 let observerMap: Map<string, MutationObserver> = new Map()
-function BuildCustomEditor (option: CustomEditorOptions): CustomEditor {
+function buildCustomEditor (option: CustomEditorOptions): CustomEditor {
     let container = createClassDom('div', containerName)
-    container.dataset.objhash = option.objhash
+    container.dataset.objectName = option.objectName
     option.hideHandle = beforeHideHandle(container, option)
     const vm = createVNode(Editor, option)
     render(vm, container)
@@ -55,49 +56,61 @@ const createObserver = (value: CustomEditorOptions) => {
                 }
                 if (ele.classList.contains('deleted')) {
                     // 执行组件卸载操作，通过render函数来实现
-                    let container = document.querySelector(`div.${containerName}[data-objhash="${value.objhash}"]`)!
+                    let container = document.querySelector(`div.${containerName}[data-object-name="${value.objectName}"]`)!
                     render(null, container)
+                    const fileStore = useFileStore()
+                    fileStore.removeOpenedFile(value.objectName)
+
                 }
             }
         })
     })
-    const editorEl = document.querySelector(`div.${wrapperName}[data-objhash="${value.objhash}"]`) as HTMLElement
+    const editorEl = document.querySelector(`div.${wrapperName}[data-object-name="${value.objectName}"]`) as HTMLElement
     observer.observe(editorEl, { 
         attributes: true,
         attributeFilter: ['class'],
     })
-    observerMap.set(value.objhash, observer)
+    observerMap.set(value.objectName, observer)
 }
 
 const mounted = (el: HTMLElement, binding: DirectiveBinding<CustomEditorOptions>) => {
     const { value } = binding
     el.addEventListener('click', () => {
-        let container = document.querySelector(`div.${containerName}[data-objhash='${value.objhash}']`)
+        let container = document.querySelector(`div.${containerName}[data-object-name='${value.objectName}']`)
         // 如果容器不存在，则创建一个
         if (!container) {
-            const res = BuildCustomEditor(value)
+            buildCustomEditor(value)
             createObserver(value)
         }
-        const editorEl = document.querySelector(`div.${wrapperName}[data-objhash='${value.objhash}']`) as HTMLElement
+        const editorEl = document.querySelector(`div.${wrapperName}[data-object-name='${value.objectName}']`) as HTMLElement
         editorEl.classList.add('active')
     })
 }
 
 const beforeUnmount = (el: HTMLElement, binding: DirectiveBinding<CustomEditorOptions>) => {
     const { value } = binding
-    const container = document.querySelector(`[data-objhash="${value.objhash}"]`)
+    observerMap.get(value.objectName)?.disconnect()
+    observerMap.delete(value.objectName)
+}
+
+const unmounted = (el: HTMLElement, binding: DirectiveBinding<CustomEditorOptions>, vnode) => {
+    const { value } = binding
+    const container = document.querySelector(`[data-object-name="${value.objectName}"]`)
     if (container) {
         container.remove()
-        observerMap.get(value.objhash)?.disconnect()
-        observerMap.delete(value.objhash)
+        observerMap.get(value.objectName)?.disconnect()
+        observerMap.delete(value.objectName)
     }
+
 }
+
 
 // 创建指令对象
 const EditorDirective: ObjectDirective = {
     mounted,
-    beforeUnmount
+    beforeUnmount,
+    unmounted
 }
 
-export { BuildCustomEditor, EditorDirective }
+export { buildCustomEditor, EditorDirective }
 export default Editor

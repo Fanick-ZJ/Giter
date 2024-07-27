@@ -1,6 +1,6 @@
 <template>
     <div class="__editor__wrapper" 
-        :data-objhash="objhash"
+        :data-object-name="objectName"
         ref="wrapperRef">
         <div class="__editor__tabbar" 
             draggable="true"
@@ -34,7 +34,6 @@ import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import { useFileStore } from '@/renderer/store/modules/files';
 
 export default defineComponent({
     name: 'Editor',
@@ -66,7 +65,7 @@ export default defineComponent({
             type: String,
             default: 'body'
         },
-        objhash: {
+        objectName: {
             type: String,
             required: true
         }
@@ -93,32 +92,28 @@ export default defineComponent({
                 return new editorWorker()
             }
         }
-
+        const {fileType, fileContent, objectName} = props
         onMounted(() => {
-            console.log(props.fileContent.split('\n').length * 20)
             if (editorRef.value) {
                 const editor = monaco.editor.create(editorRef.value, {
                     lineHeight: 20,
                     scrollBeyondLastLine: true, // 设置编辑器是否可以滚动到最后一行之后
                     readOnly: true, // 是否为只读模式
                     automaticLayout: true,
-                    language: props.fileType,
-                    value: props.fileContent
+                    language: fileType,
+                    value: fileContent
                     
                 })
             }
         })
 
         const minimize = () => {
-            const wrapper = document.querySelector(`div.__editor__wrapper[data-objhash='${props.objhash}']`)
+            const wrapper = document.querySelector(`div.__editor__wrapper[data-object-name='${objectName}']`)
             wrapper?.classList.remove('active')
         }
-
-        const fileStore = useFileStore()
         const destory = () => {
-            const wrapper = document.querySelector(`div.__editor__wrapper[data-objhash='${props.objhash}']`)
+            const wrapper = document.querySelector(`div.__editor__wrapper[data-object-name='${objectName}']`)
             wrapper?.classList.add('deleted')
-            fileStore.removeOpenedFile(props.objhash)
         }
         let beginX = 0
         let beginY = 0

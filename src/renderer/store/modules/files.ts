@@ -135,8 +135,8 @@ export const useFileStore = defineStore('files', () => {
         }
    }
 
-   const removeOpenedFile = (objhash: string) => {
-        openedFileList.value = openedFileList.value.filter(item => item.objectName !== objhash)
+   const removeOpenedFile = (objectName: string) => {
+        openedFileList.value = openedFileList.value.filter(item => item.objectName !== objectName)
    }
 
    const getOpenedFile = (objectName: string) => {

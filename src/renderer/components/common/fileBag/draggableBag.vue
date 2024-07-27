@@ -14,11 +14,12 @@
         <div class="__draggable__bag__tabbar"
             ref="tabbar">
             <div  v-show="showing">
-                <template v-for="item in fileStore.openedFileList" >
-                    <openedIcon :file="item"
-                    :width="20"
-                    :height="20"
-                    v-editor="createOpenEditorProps(item)">
+                <template v-for="item in fileStore.openedFileList" :key="item.objectName">
+                    <openedIcon 
+                        :file="item"
+                        :width="20"
+                        :height="20"
+                        v-editor="createOpenEditorProps(item)">
                     </openedIcon>
                 </template>
             </div>
@@ -32,10 +33,8 @@ import { Icon } from '@iconify/vue';
 import { ref, onMounted } from 'vue';
 import openedIcon from './openedIcon.vue';
 import {CustomEditorOptions} from '@/renderer/components/common/editor/types';
-import { RepoFileInfo } from '@/types';
 import { getFileType } from '@/renderer/common/util/file';
 import { openedFile } from '@/renderer/types';
-import { uuid } from '@/renderer/common/util/tools';
 
 const fileStore = useFileStore()
 
@@ -159,7 +158,7 @@ const createOpenEditorProps = (item: openedFile): CustomEditorOptions => {
         fileType: getFileType(item.name),
         fileContent: item.content,
         readOnly: true,
-        objhash: item.objectName || '',
+        objectName: item.objectName || '',
         hideHandle: () => {},
     }
 }

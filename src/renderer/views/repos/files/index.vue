@@ -56,7 +56,6 @@ const MountedFn = () => {
     }
 }
 onMounted(() => {
-    console.log('monteddd')
     MountedFn()
 })
 
