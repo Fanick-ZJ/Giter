@@ -1,7 +1,7 @@
 import { BrowserWindow, type IpcMainEvent, type IpcMainInvokeEvent } from "electron"
 import { spawn } from "child_process"
 import fsPath from "path"
-import { getAllBranch, getBranchListContainCommit, getRemote, getTag, hasGit, hasRemote, isCommited, isGitRepo, isPushed, getCurrentBranch, getFileListByHash} from "../../common/utils/gitUtil"
+import { getBranchListContainCommit } from '../../common/utils/gitUtil';
 import { DialogType, type RepoItem, type AbstractRepoItem } from "@/types"
 import { WorkerThreadPoolMap, newWorker } from "@/electron/workers/workThread"
 import RepoWatcher, { addRepoWatcher } from "@/electron/watcher/RepoWatcher"
@@ -14,6 +14,7 @@ import { tr } from "@/electron/app/lang/translate"
 import { showErrorDialog } from "@/electron/common/utils/dialogUtil"
 import { RepositoryDB } from "@/electron/database/repositoryDB"
 import { WindowsManager } from "@/electron/win/windowManager"
+import { getBranches, getCurrentBranch, getRemote, getTags, hasGit, hasRemote, isCommited, isGitRepository, isPushed } from "@/electron/lib/gitUtil"
 
 export class RepoService extends IpcMainBasicService{
     private wtpInstance: WorkerThreadPoolMap
@@ -33,7 +34,7 @@ export class RepoService extends IpcMainBasicService{
             const exist = isPathExist(path)
             if (exist) {
                 // 如果存在就检查是否为仓库
-                return await isGitRepo(path)
+                return isGitRepository(path)
             }
             return false
         }
@@ -47,7 +48,8 @@ export class RepoService extends IpcMainBasicService{
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     isPushed(event: IpcMainInvokeEvent, path: string) {
-        const res = isPushed(path)
+        const branch = getCurrentBranch(path)
+        const res = isPushed(path, branch.name)
         return res
     }
 
@@ -64,8 +66,8 @@ export class RepoService extends IpcMainBasicService{
     }
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
-    getAllBranches(event: IpcMainInvokeEvent, path: string){
-        const res = getAllBranch(path)
+    getBrancheses(event: IpcMainInvokeEvent, path: string){
+        const res = getBranches(path)
         return res
     }
 
@@ -113,7 +115,7 @@ export class RepoService extends IpcMainBasicService{
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     getTags(event: IpcMainInvokeEvent, params: {path: string}) {
-        const tags = getTag(params.path)
+        const tags = getTags(params.path)
         return tags
     }
 
@@ -196,9 +198,9 @@ export class RepoService extends IpcMainBasicService{
         return this.repoDB.getAllRepository().then(async (repos: RepoItem[]) => {
             for (let i = 0; i < repos.length; i++) {
                 const item = repos[i]
-                item.isExist = isPathExist(item.path) && await isGitRepo(item.path)
+                item.isExist = isPathExist(item.path) && isGitRepository(item.path)
                 if (item.isExist) {
-                    item.curBranch = await getCurrentBranch(item.path)
+                    item.curBranch = getCurrentBranch(item.path).name
                 }
             }
             return repos
@@ -216,8 +218,8 @@ export class RepoService extends IpcMainBasicService{
     }
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
-    getFileListByHash(event: IpcMainInvokeEvent, params: {path: string, hash: string}) {
-        return this.wtpInstance.run('repos', {name: 'getFileListByHash', params})
+    getFileListByCommit(event: IpcMainInvokeEvent, params: {path: string, hash: string}) {
+        return this.wtpInstance.run('repos', {name: 'getFileListByCommit', params})
     }
 
     @IpcAction(IpcActionEnum.ipcMainOn)

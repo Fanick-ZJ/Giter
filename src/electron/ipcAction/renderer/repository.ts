@@ -25,10 +25,10 @@ export const reposRenderSender = {
         repos: RepoItem,
         taskId: string
     ) => ipcRenderer.invoke('repos::addWatcher', repos, taskId),
-    getAllBranches: (  // 获取分支
+    getBrancheses: (  // 获取分支
         path: string,
         taskId: string
-    ) => ipcRenderer.invoke('repos::getAllBranches', path, taskId),
+    ) => ipcRenderer.invoke('repos::getBrancheses', path, taskId),
     getRepoBranch: (  // 获取分支
         path: string,
         taskId: string
@@ -133,13 +133,13 @@ export const reposRenderSender = {
         path: string,
         taskId: string
     ) => ipcRenderer.invoke('repos::delRepo', path, taskId),
-    getFileListByHash: (
+    getFileListByCommit: (
         params: {
             hashOrBranch: string,
             path: string
         },
         taskId: string
-    ) => ipcRenderer.invoke('repos::getFileListByHash', params, taskId),
+    ) => ipcRenderer.invoke('repos::getFileListByCommit', params, taskId),
 
     updateMainWindowRepoInfo: (
         repo: RepoItem

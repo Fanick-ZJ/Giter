@@ -55,7 +55,7 @@ const menuOption: CustomMouseMenuOptions = {
         }),
         createMenuItem(i18n.t('commitDetailItemContextMenu.viewThisCommitFileTree'), [], ()=>{
             router.push(`/repos/files/${encode(repo.path)}/${encode(detail.hash)}`)
-            // console.log(repoTaskService.getFileListByHash(detail.hash, decode(route.params.path as string)))
+            // console.log(repoTaskService.getFileListByCommit(detail.hash, decode(route.params.path as string)))
         })
     ]
 }

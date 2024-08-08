@@ -2,18 +2,25 @@
 import { Author, AuthorStatDailyContributeMap, StatDailyContribute, unknown } from '@/types'
 import {defineStore} from 'pinia'
 import { CurShowData } from '@/renderer/types'
-type DetailChartStoreType = StatDailyContribute & Record<'curShowData', CurShowData> & Record<'authorMap', AuthorStatDailyContributeMap>
+type DetailChartStoreType = StatDailyContribute 
+                            & Record<'curShowData', CurShowData> 
+                            & Record<'authorMap', AuthorStatDailyContributeMap> 
+                            & Record<'start', Date> 
+                            & Record<'end', Date> 
+                            & Record<'dateList', Array<Date>>
+
+type authorMapItme = StatDailyContribute & Record<'author', Author> & Record<'key', string>
 export const useDetailChartStore = defineStore('detailChartStore', {
     state: (): DetailChartStoreType => ({
         start: new Date(),
         end: new Date(),
         curShowData: 'commits',
-        changeFiles: new Array<number>(),
-        commitCount: new Array<number>(),
-        deletions: new Array<number>(),
-        insertion: new Array<number>(),
+        changeFiles: [] as number[],
+        commitCount: [] as number[],
+        deletions: [] as number[],
+        insertion: [] as number[], 
         dateList: new Array<Date>(),
-        authorMap: new Map<string, StatDailyContribute & Record<'author', Author> & Record<'key', string>>()
+        authorMap: new Map<string, authorMapItme>()
     }),
     getters: {
         curDataList(): number[] {
@@ -51,7 +58,7 @@ export const useDetailChartStore = defineStore('detailChartStore', {
             this.insertion = new Array<number>()
             this.deletions = new Array<number>()
             this.dateList = new Array<Date>()
-            this.authorMap = new Map<string, StatDailyContribute & Record<'author', Author> & Record<'key', string>>()
+            this.authorMap = new Map<string, authorMapItme>()
         }
     }
 })

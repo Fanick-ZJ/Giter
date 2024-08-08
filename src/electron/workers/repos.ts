@@ -5,12 +5,12 @@
 import { workerThreadEnvInit } from "../common/utils/tools"
 workerThreadEnvInit()
 
-import { WorkTask } from "@/types"
+import { Branchs, CommitFileInfo, WorkTask } from "@/types"
 import { parentPort  } from 'worker_threads'
-import {getBranchCreatorInfo, getContributors, getLog, getRepositoryInfo, getContributorsRank, getContributeStat, getRepoFileList, getRepoBranch, isGitRepo, getFileContent, getFileListByHash} from "@/electron/common/utils/gitUtil.ts"
+import { getLog} from "@/electron/common/utils/gitUtil.ts"
 import { logger } from "@/electron/logger/init"
 import { isPathExist } from "../common/utils/fileUtil"
-import { getCommitFileInfo } from '../common/utils/gitUtil'
+import { getAllAuthors, getBranchAuthors, getBranchCreateInfo, getBranches, getCommitLogFormat, getContributeStat, getCurrentBranch, getFileByHash, getFileContent, getFilesDiffContext, getRepoFileList, getRepositoryInfoFull, isGitRepository } from "../lib/gitUtil"
 
 interface PathAndBranch {
     path: string,
@@ -26,52 +26,62 @@ const _readCommitLog = async (param: PathAndBranch) => {
 
 const _getContributors = (param: PathAndBranch) => {
     const { path, branch } = param
-    const contributors = getContributors(path, branch)
+    const contributors = getBranchAuthors(path, branch)
     parentPort?.postMessage(contributors)
 }
 
 const _getBranchCreator = (param: PathAndBranch) => {
     const { path, branch } = param
-    const contributors = getBranchCreatorInfo(path, branch)
+    const contributors = getBranchCreateInfo(path, branch)
     parentPort?.postMessage(contributors)
 }
 const _getRepositoryInfo = async (param: {path: string}) => {
-    const repoInfo = await getRepositoryInfo(param.path)
+    const repoInfo = getRepositoryInfoFull(param.path)
     parentPort?.postMessage(repoInfo)
 
 }
 const _getContributorsRank = async (param: PathAndBranch) => {
-    const rank = await getContributorsRank(param.path, param.branch)
+    const rank = getAllAuthors(param.path)
     parentPort?.postMessage(rank)
 
 }
 const _getContributeStat = async (param: PathAndBranch) => {
-    const res = await getContributeStat(param.path, param.branch)
+    const res = getContributeStat(param.path, param.branch)
     parentPort?.postMessage(res)
 }
 
 const _getRepoFileList = async (param: PathAndBranch) => {
-    const res = await getRepoFileList(param.path, param.branch)
+    const res = getRepoFileList(param.path, param.branch)
     parentPort?.postMessage(res)
 }
 
 const _getRepoBranch = async (path: string) => {
-    const res = await getRepoBranch(path)
-    parentPort?.postMessage(res)
+    const branches = getBranches(path)
+    const current = getCurrentBranch(path)
+    parentPort?.postMessage({
+        all: branches,
+        current
+    })
 }
 
 const _getFileContent =  (param: {path: string, fileHash: string}) => {
-    const res = getFileContent(param.path, param.fileHash)
+    const res = getFileByHash(param.path, param.fileHash)
     parentPort?.postMessage(res)
 }
 
 const _getCommitFileInfo = (param: {path: string, hash: string}) => {
-    const res = getCommitFileInfo(param.path, param.hash)
+    const diffs = getFilesDiffContext(param.path, param.hash+'^', param.hash)
+    const commit_message = getCommitLogFormat(param.path, ['%s', '%h'], param.hash+'^', param.hash)
+    const res: CommitFileInfo = {
+        title: commit_message["message"],
+        hash: commit_message["hashS"],
+        diff: diffs
+    }
     parentPort?.postMessage(res)
 }
 
-const _getFileListByHash = (param: {path: string, hashOrBranch: string}) => {
-    const res = getFileListByHash(param.path, param.hashOrBranch)
+const _getFileListByCommit = (param: {path: string, hashOrBranch: string}) => {
+    const res = getRepoFileList(param.path, param.hashOrBranch)
     parentPort?.postMessage(res)
 }
 
@@ -84,7 +94,7 @@ const _isRepoExist = async (path: string | string[]) => {
             const exist = isPathExist(path[i])
             if (exist) {
                 // 如果存在就检查是否为仓库
-                res.push(await isGitRepo(path[i]))
+                res.push(isGitRepository(path[i]))
             }else{
                 res.push(false)
             }
@@ -93,7 +103,7 @@ const _isRepoExist = async (path: string | string[]) => {
         const exist = isPathExist(path)
         if (exist) {
             // 如果存在就检查是否为仓库
-            res =  await isGitRepo(path)
+            res =  isGitRepository(path)
         }
         res =  false
     }
@@ -111,7 +121,7 @@ const ACTION_MAP = new Map<string, (...args: any[]) => void>([
     ['getFileContent', _getFileContent],
     ['isRepoExist', _isRepoExist],
     ['getCommitFileInfo', _getCommitFileInfo],
-    ['getFileListByHash', _getFileListByHash],
+    ['getFileListByCommit', _getFileListByCommit],
 ])
 const message = (e: WorkTask<any>) => {
     // 根据名字来执行不同的任务

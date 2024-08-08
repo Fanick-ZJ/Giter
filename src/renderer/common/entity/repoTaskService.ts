@@ -72,8 +72,8 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getAllBranches(path: string){
-        const invokeRet = this.invoke(window.repoAPI.getAllBranches, path)
+    getBrancheses(path: string){
+        const invokeRet = this.invoke(window.repoAPI.getBrancheses, path)
         return invokeRet
     }
     /**
@@ -229,8 +229,8 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
     }
 
     @ErrorDialog
-    getFileListByHash(hashOrBranch: string, repoPath: string) {
-        return this.invoke(window.repoAPI.getFileListByHash, {hashOrBranch, path: repoPath})
+    getFileListByCommit(hashOrBranch: string, repoPath: string) {
+        return this.invoke(window.repoAPI.getFileListByCommit, {hashOrBranch, path: repoPath})
     }
 
     updateMainWindowRepoInfo(repo: RepoItem) {

@@ -74,7 +74,6 @@ onMounted(() => {
  * 获取仓库当前分支统计信息信息
  */
 const getRepoStatData = () => {
-    const detailChartStore = useDetailChartStore()
     loading.value = true
     // 获取日志
     repoTaskService.getTags(repo.path)
@@ -88,7 +87,6 @@ const getRepoStatData = () => {
         // 获取仓库统计信息
         return repoTaskService.getContributeStat(repoInfo.value!.path, curBranch.value!.name)
     }).then(res => {
-        chartStore.start = res.start
         chartStore.start = res.start
         chartStore.end = res.end
         chartStore.changeFiles = res.changeFiles

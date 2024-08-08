@@ -32,9 +32,9 @@ export class TipDialog {
                 preload: path.join(__dirname, 'app/preload/preload.js')
             }
         })
-        if (process.env.NODE_ENV === 'development') {
-            this.win.webContents.openDevTools()
-        }
+        // if (process.env.NODE_ENV === 'development') {
+        //     this.win.webContents.openDevTools()
+        // }
 
     }
 

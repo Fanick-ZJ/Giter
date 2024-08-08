@@ -2,7 +2,7 @@ import {IpcRendererEvent} from "electron";
 import {ContributorsRankItem, RepoItem, Repository,
         StatDailyContribute, AuthorStatDailyContributeMap, RemoteItem,
         Base64Icon, Success,
-        AbstractRepoItem, CommitFileInfo} from "@/types/index.ts";
+        AbstractRepoItem, CommitFileInfo, BranchStatDailyContribute} from "@/types/index.ts";
 import {DefaultLogFields} from "simple-git/dist/src/lib/tasks/log";
 import { BranchCreatedInfo } from "@/electron/common/utils/gitUtil";
 import { RouteInfo } from "./routeParamType";
@@ -21,7 +21,7 @@ declare global {
             addRepoWatcher: (repos: RepoItem) => Promise<any>,
             isRepoExist: (path: string | string[]) => Promise<boolean | boolean[]>,
             isPushed: (path: string) => Promise<any>,
-            getAllBranches: (path: string) => Promise<any>,
+            getBrancheses: (path: string) => Promise<any>,
             getRepoBranch: (path: string) => Promise<Branchs>,
             getLog: (params: {path: string, branch: string}) => Promise<DefaultLogFields[]>
             stopWatching: (repo: RepoItem) => Promise<any>,
@@ -31,7 +31,7 @@ declare global {
             getContributorsRank: (params: {path: string, branch: string}) => Promise<ContributorsRankItem[]>
             getRepositoryInfo: (params: {path: string}) => Promise<Repository>
             getTags: (params: {path: string}) => Promise<string[]>
-            getContributeStat: (params: {path: string, branch: string}) => Promise<StatDailyContribute & Record<'authorMap', AuthorStatDailyContributeMap>>
+            getContributeStat: (params: {path: string, branch: string}) => Promise<BranchStatDailyContribute>
             openProject: (params: {path: string, ext: string}) => Promise<void>
             getRepoFileList: (params: {path: string, branch: string}) => Promise<FileInfo[]>
             getFileContent: (params: {path: string, fileHash: string}) => Promise<string>
@@ -42,7 +42,7 @@ declare global {
             getAllRepos: () => Promise<RepoItem[]>
             delRepo: (path: string) => Promise<void>
             updateRepo: (repo: RepoItem) => Promise<void>
-            getFileListByHash: (params: {path: string, hashOrBranch: string}) => Promise<FileInfo[]>
+            getFileListByCommit: (params: {path: string, hashOrBranch: string}) => Promise<FileInfo[]>
             updateMainWindowRepoInfo: (repo: RepoItem) => void
         },
         dialogAPI: {

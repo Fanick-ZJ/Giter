@@ -19,13 +19,13 @@
             <div class="__commit_detail_file-block" 
                 v-for="(file, index) in commitFileDetail.diff">
                 <div class="__commit_detail_file-tabbar">
-                    <div class="__commit_detail_additions">+{{ file.additions.length }}</div>
-                    <div class="__commit_detail_deletions">-{{ file.deletions.length }}</div>
-                    <div class="__commit_detail_file-name">{{ file.path }}</div>
+                    <div class="__commit_detail_additions">+{{ file.changeStat.addition }}</div>
+                    <div class="__commit_detail_deletions">-{{ file.changeStat.deletion }}</div>
+                    <div class="__commit_detail_file-name">{{ file.filePath }}</div>
                 </div>
                 <div class="__commit_detail_file-content"
                     :id="editorClassPrefix + index"
-                    :style="{ height: file.commitContext.length * 20 + 'px' }">
+                    :style="{ height:  getMaxLength(file)* 20 + 'px' }">
                 </div>
             </div>
         </div>
@@ -35,10 +35,11 @@
 <script setup lang="ts">
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
-import { CommitFileInfo, DiffFile } from '@/types';
+import { CommitFileInfo, FileDiffContext } from '@/types';
 import { onMounted, Ref, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import * as monaco from 'monaco-editor';
+import { getFileType } from '@/renderer/common/util/file';
 
 const route = useRoute();
 const router = useRouter();
@@ -69,7 +70,7 @@ onMounted(() => {
     })
 })
 
-const createEditor = (index: number, file: DiffFile) => {
+const createEditor = (index: number, file: FileDiffContext) => {
     const   editorContainer = document.getElementById(editorClassPrefix + index)
     const editor = monaco.editor.createDiffEditor(editorContainer!, {
         lineHeight: 20,
@@ -85,8 +86,8 @@ const createEditor = (index: number, file: DiffFile) => {
         }
     })
     editor.setModel({
-        original: getOriginalText(file.commitContext, file.fileType),
-        modified: getModifiedText(file.commitContext, file.fileType)
+        original: getOriginalText(file.context1.split('\n'), getFileType(file.filePath)),
+        modified: getModifiedText(file.context2.split('\n'), getFileType(file.filePath))
     })
 }
 
@@ -112,14 +113,8 @@ const getModifiedText = (content: string[], type: string='plaintext') => {
     return monaco.editor.createModel(text, type)
 }
 
-const getLineheightOption = (content: string, row: number, lineClassName: string): monaco.editor.IModelDeltaDecoration => {
-    return {
-        range: new monaco.Range(row, 1, row, 1),
-        options: {
-            isWholeLine: true,
-            className: lineClassName
-        }
-    }
+const getMaxLength = (file: FileDiffContext) => {
+    return Math.max(file.context1.split('\n').length, file.context2.split('\n').length)
 }
 </script>
 

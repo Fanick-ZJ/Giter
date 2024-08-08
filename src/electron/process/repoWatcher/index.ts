@@ -38,13 +38,11 @@ class WatcherItem{
         this.timeout = setTimeout(() => {
             // 对文件进行监听，当文件发生变化的时候，执行检查更新
             const status = getStatus(this.repos.path)
-            status.then(res => {
-                // 呼叫检查状态
-                processSend({tag: 'change', data: {
-                    repos: this.repos,
-                    status: res
-                }})
-            })
+            // 呼叫检查状态
+            processSend({tag: 'change', data: {
+                repos: this.repos,
+                status: status
+            }})
         }, this.delay) 
     }
 

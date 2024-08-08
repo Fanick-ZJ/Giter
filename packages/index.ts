@@ -50,7 +50,8 @@ const buildWorkThreads = () => {
         outdir: `${OUT_DIR}/electron/workers`,
         platform: 'node',
         target: 'node12',
-        external: externalModel
+        external: externalModel,
+        loader: {'.node':'copy'} 
     })
 }
 
@@ -65,7 +66,8 @@ const subProcess = () => {
         outdir: `${OUT_DIR}/electron/process`,
         platform: 'node',
         target: 'node12',
-        external: externalModel
+        external: externalModel,
+        loader: {'.node':'copy'} 
     })
 }
 
