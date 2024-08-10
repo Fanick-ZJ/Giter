@@ -1,6 +1,13 @@
 import { onUnmounted } from "vue";
 import { isSetupEnvironment, uuid } from "../util/tools"
 import { apiMap } from "../util/apiUtil";
+type fn = (...args: any[]) => any
+type TaskQueueItem = {
+    func: fn,
+    args: any[],
+    resolve: fn,
+    reject: fn
+}
 /**
  * 这个类的主要目的是实现对主进程的promise函数进行中断操作，因为
  * 有些时候在执行一些相对费时的操作时，在此期间切换界面不会时原有的
@@ -8,7 +15,10 @@ import { apiMap } from "../util/apiUtil";
  * 统一管理，实现对任务的中断操作。是单例模式
  */
 export class IpcRendererBasicTaskService{
-    private taskTagMap = new Map<string, Function>;
+    private taskTagMap = new Map<string, Function>
+    private static taskQueue: TaskQueueItem[] = []  // 任务队列
+    private static maxConcurrentTask = 5            // 最大并发任务数
+    private static runing = 0                       // 当前正在执行的任务数
     /**
      * 执行任务
      * @param func 任务函数
@@ -21,6 +31,47 @@ export class IpcRendererBasicTaskService{
             this.interrupt()
         })
     }
+
+    public enqueue<T extends fn>(task: T, ...args: Parameters<T>):Promise<ReturnType<T>> {
+        const promise = new Promise<ReturnType<T>>((resolve, reject) => {
+            IpcRendererBasicTaskService.taskQueue.push({
+                func: task,
+                args,
+                resolve, 
+                reject
+            });
+        });
+        this.processQueue()
+        return promise;
+    }
+
+    private processQueue() {
+        while(IpcRendererBasicTaskService.taskQueue.length && IpcRendererBasicTaskService.runing < IpcRendererBasicTaskService.maxConcurrentTask) {
+            const { func, args, resolve, reject } = IpcRendererBasicTaskService.taskQueue.shift()!;
+            IpcRendererBasicTaskService.runing++
+            const invoke = this.invoke(func, ...args)
+            if(invoke instanceof Promise) {
+                invoke.then(res => {
+                    resolve(res)
+                    IpcRendererBasicTaskService.runing--
+                    this.processQueue()
+                }).catch(error => {
+                    reject(error)
+                    IpcRendererBasicTaskService.runing--
+                    this.processQueue()
+                })
+            } else {
+                resolve(invoke)
+                IpcRendererBasicTaskService.runing--
+                this.processQueue()
+            }
+        }
+    }
+
+    clearQueue() {
+        this.interrupt()
+        IpcRendererBasicTaskService.taskQueue = []
+    }
     invoke<T extends (...args: any[]) => any>(func:T, ...args: Parameters<T>):ReturnType<T> {
         const taskId = uuid();// 为每个任务生成一个uuid
         this.taskTagMap.set(taskId, func);      // 设立id->task的映射关系
@@ -31,7 +82,7 @@ export class IpcRendererBasicTaskService{
         if (fn_ret instanceof Promise){
             fn_ret = fn_ret.then(res => {
                 // const t2 = new Date()
-                // console.log(`任务${apiMap.get(func)}执行时间, ${args}`, t2.getTime() - t1.getTime())
+                // console.log(`任务${apiMap.get(func)}执行时间`, t2.getTime() - t1.getTime())
                 if(this.taskTagMap.has(taskId)){
                     this.taskTagMap.delete(taskId)
                     return Promise.resolve(res)

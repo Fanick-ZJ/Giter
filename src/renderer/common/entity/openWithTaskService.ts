@@ -2,16 +2,16 @@ import { OpenWithApp } from "@/types";
 import { IpcRendererBasicTaskService } from "./ipcRendererBasicTaskService";
 
 export class OpenWithTaskService extends IpcRendererBasicTaskService{
-    getAllApp() {
-        return this.invoke(window.explorerAPI.getAllOpenWithApps)
+    async getAllApp() {
+        return this.enqueue(window.explorerAPI.getAllOpenWithApps)
     }
 
-    delApp(path: string) {
-        return this.invoke(window.explorerAPI.delOpenWithApp, path)
+    async delApp(path: string) {
+        return this.enqueue(window.explorerAPI.delOpenWithApp, path)
     }
 
-    getApp(path: string) {
-        return this.invoke(window.explorerAPI.getOpenWithApp, path)
+    async getApp(path: string) {
+        return this.enqueue(window.explorerAPI.getOpenWithApp, path)
     }
 
     async addApp(path: string): Promise<OpenWithApp| undefined> {
@@ -20,9 +20,9 @@ export class OpenWithTaskService extends IpcRendererBasicTaskService{
             window.dialogAPI.showWarnDialog('error', 'The app has appended')
             return
         }
-        const icon = await this.invoke(window.explorerAPI.extractIcon, path)
+        const icon = await this.enqueue(window.explorerAPI.extractIcon, path)
         if (typeof icon === 'string') {
-            const invokeRet = this.invoke(window.explorerAPI.addOpenWithApp, {
+            const invokeRet = this.enqueue(window.explorerAPI.addOpenWithApp, {
                 path,
                 icon,
                 name: path.split('\\').pop() || '',

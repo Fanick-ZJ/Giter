@@ -46,8 +46,6 @@ onBeforeMount(async () => {
 })
 
 const curBranch = ref<string>(repo.curBranch)     // 当前分支
-const i18n = useI18n()
-const repoInfo = ref<Repository>()  // 仓库信息
 const commitCount = ref<number>(0)              // 当前分支提交次数
 const contributorsRankList = ref<Author[]>([])  // 当前分支贡献者列表
 const loading = ref<boolean>(true)

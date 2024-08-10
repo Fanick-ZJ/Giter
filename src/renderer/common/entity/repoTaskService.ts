@@ -13,15 +13,15 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
     @ErrorDialog
     storeGetAllRepos() {
         console.log('开始获取仓库列表')
-        this.invoke(window.repoAPI.getAllRepos, false).then(repos => {
-            this.repoStore.set(repos)
+        this.enqueue(window.repoAPI.getAllRepos, false).then(async (repos) => {
+            this.repoStore.set(await repos)
         })
     }
 
     @ErrorDialog
-    getAllRepos() {
+    async getAllRepos() {
         console.log('开始获取仓库列表')
-        return this.invoke(window.repoAPI.getAllRepos)
+        return await this.enqueue(window.repoAPI.getAllRepos)
     }
 
     
@@ -31,18 +31,20 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @param item 
      */
     @ErrorDialog
-    addRepoWatcher(item: RepoItem){
-        const invokeRet = this.invoke(window.repoAPI.addRepoWatcher, toRaw(item))
+    async addRepoWatcher(item: RepoItem){
+        const invokeRet = await this.enqueue(window.repoAPI.addRepoWatcher, toRaw(item))
         return invokeRet
     }
 
-    repoExist(repo: RepoItem) {
-        const invokeRet = this.invoke(window.repoAPI.isRepoExist, repo.path)
+    @ErrorDialog
+    async repoExist(repo: RepoItem) {
+        const invokeRet = await this.enqueue(window.repoAPI.isRepoExist, repo.path)
+
     }
 
     @ErrorDialog
-    removeRepoWatcher(item: RepoItem){
-        const invokeRet = this.invoke(window.repoAPI.stopWatching, toRaw(item))
+    async removeRepoWatcher(item: RepoItem){
+        const invokeRet = await this.enqueue(window.repoAPI.stopWatching, toRaw(item))
         return invokeRet
     }
 
@@ -52,8 +54,8 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getRemote(path: string) {
-        return this.invoke(window.repoAPI.getRemote, path)
+    async getRemote(path: string) {
+        return this.enqueue(window.repoAPI.getRemote, path)
     }
     /**
      * 获取提交日志
@@ -62,8 +64,8 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getLog(path: string, branch: string){
-        const invokeRet = this.invoke(window.repoAPI.getLog, {path, branch})
+    async getLog(path: string, branch: string){
+        const invokeRet = this.enqueue(window.repoAPI.getLog, {path, branch})
         return invokeRet
     }
     /**
@@ -72,8 +74,8 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getBrancheses(path: string){
-        const invokeRet = this.invoke(window.repoAPI.getBrancheses, path)
+    async getBrancheses(path: string){
+        const invokeRet = this.enqueue(window.repoAPI.getBrancheses, path)
         return invokeRet
     }
     /**
@@ -82,8 +84,8 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getRepoBranch(path: string){
-        const invokeRet = this.invoke(window.repoAPI.getRepoBranch, path)
+    async getRepoBranch(path: string){
+        const invokeRet = this.enqueue(window.repoAPI.getRepoBranch, path)
         return invokeRet
     }
     /**
@@ -92,9 +94,9 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    delRepo(repo: AbstractRepoItem){
+    async delRepo(repo: AbstractRepoItem){
         console.log('执行删除操作')
-        const invokeRet = this.invoke(window.repoAPI.delRepo, repo.path)
+        const invokeRet = this.enqueue(window.repoAPI.delRepo, repo.path)
         return invokeRet
     }
     /**
@@ -103,10 +105,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @param branch 
      */
     @ErrorDialog
-    getContributors (path:string , branch: string) {
+    async getContributors (path:string , branch: string) {
         console.log('执行获取贡献者操作')
         const param = {path: path, branch}
-        const invokeRet = this.invoke(window.repoAPI.getContributors, param)
+        const invokeRet = this.enqueue(window.repoAPI.getContributors, param)
         return invokeRet
     }
     /**
@@ -115,10 +117,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @param branch 
      */
     @ErrorDialog
-    getBranchCreatorInfo (path:string , branch: string) {
+    async getBranchCreatorInfo (path:string , branch: string) {
         console.log('执行获取贡献者操作')
         const param = {path: path, branch}
-        const invokeRet = this.invoke(window.repoAPI.getBranchCreatorInfo, param)
+        const invokeRet = this.enqueue(window.repoAPI.getBranchCreatorInfo, param)
         return invokeRet
     }
     /**
@@ -127,10 +129,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @param branch 
      */
     @ErrorDialog
-    getRepositoryInfo (path:string ) {
+    async getRepositoryInfo (path:string ) {
         console.log('执行获取贡献者操作')
         const param = {path}
-        const invokeRet = this.invoke(window.repoAPI.getRepositoryInfo, param)
+        const invokeRet = this.enqueue(window.repoAPI.getRepositoryInfo, param)
         return invokeRet
     }
     /**
@@ -139,10 +141,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getTags (path: string) {
+    async getTags (path: string) {
         console.log('执行获取标签操作')
         const param = {path}
-        const invokeRet = this.invoke(window.repoAPI.getTags, param)
+        const invokeRet = this.enqueue(window.repoAPI.getTags, param)
         return invokeRet
     }
     /**
@@ -152,10 +154,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getBranchContributorsRank (path: string, branch: string) {
+    async getBranchContributorsRank (path: string, branch: string) {
         console.log('执行获取当前分支贡献者排名')
         const param = {path, branch}
-        const invokeRet = this.invoke(window.repoAPI.getBranchContributorsRank, param)
+        const invokeRet = this.enqueue(window.repoAPI.getBranchContributorsRank, param)
         return invokeRet
     }
     /**
@@ -165,10 +167,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getContributeStat (path: string, branch: string) {
+    async getContributeStat (path: string, branch: string) {
         console.log('执行获取当前分支贡献数据')
         const param = {path, branch}
-        const invokeRet = this.invoke(window.repoAPI.getContributeStat, param)
+        const invokeRet = this.enqueue(window.repoAPI.getContributeStat, param)
         return invokeRet
     }
     
@@ -179,80 +181,80 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      */
 
     @ErrorDialog
-    isCommitedFn (repos: RepoItem) {
-        return this.invoke(window.repoAPI.isCommited, repos.path).then( (res: boolean) => {
-            if (!res) this.repoStore.switchRepoStatus(repos, RepoStatus.UNCOMMIT)
+    async isCommitedFn (repos: RepoItem) {
+        return this.enqueue(window.repoAPI.isCommited, repos.path).then( async (res: Promise<boolean>) => {
+            if (!await res) this.repoStore.switchRepoStatus(repos, RepoStatus.UNCOMMIT)
             return Promise.resolve()
         })
     }
 
     @ErrorDialog
-    isPushedFn (repos: RepoItem) {
-        return this.invoke(window.repoAPI.isPushed, repos.path).then((res: boolean) => {
-            if (!res) this.repoStore.switchRepoStatus(repos, RepoStatus.UNPUSH)
+    async isPushedFn (repos: RepoItem) {
+        return this.enqueue(window.repoAPI.isPushed, repos.path).then(async (res: Promise<boolean>) => {
+            if (!await res) this.repoStore.switchRepoStatus(repos, RepoStatus.UNPUSH)
             return Promise.resolve()
         })
     }
 
     @ErrorDialog
-    openProject (path: string, ext: string) {
-        return this.invoke(window.repoAPI.openProject, {path, ext})
+    async openProject (path: string, ext: string) {
+        return this.enqueue(window.repoAPI.openProject, {path, ext})
     }
 
     @ErrorDialog
-    getReposFileList(path: string, branch: string) {
-        const invokeRet = this.invoke(window.repoAPI.getRepoFileList, {path, branch})
+    async getReposFileList(path: string, branch: string) {
+        const invokeRet = this.enqueue(window.repoAPI.getRepoFileList, {path, branch})
         return invokeRet
     }
 
     @ErrorDialog
-    getFileContent(path: string, fileHash: string) {
-        const invokeRet = this.invoke(window.repoAPI.getFileContent, {path, fileHash})
+    async getFileContent(path: string, fileHash: string) {
+        const invokeRet = this.enqueue(window.repoAPI.getFileContent, {path, fileHash})
         return invokeRet
     }
 
     @ErrorDialog
-    getCommitFileInfo(path: string, commitHash: string) {
-        const invokeRet = this.invoke(window.repoAPI.getCommitFileInfo, {path, hash: commitHash})
+    async getCommitFileInfo(path: string, commitHash: string) {
+        const invokeRet = this.enqueue(window.repoAPI.getCommitFileInfo, {path, hash: commitHash})
         return invokeRet
     }
 
     @ErrorDialog
-    getBranchListContainCommit(path: string, commitHash: string) {
-        const invokeRet = this.invoke(window.repoAPI.getBranchListContainCommit, {path, hash: commitHash})
+    async getBranchListContainCommit(path: string, commitHash: string) {
+        const invokeRet = this.enqueue(window.repoAPI.getBranchListContainCommit, {path, hash: commitHash})
         return invokeRet
     }
 
     @ErrorDialog
-    updateRepo(repos: RepoItem) {
-        return this.invoke(window.repoAPI.updateRepo, repos)
+    async updateRepo(repos: RepoItem) {
+        return this.enqueue(window.repoAPI.updateRepo, repos)
     }
 
     @ErrorDialog
-    getFileListByCommit(hashOrBranch: string, repoPath: string) {
-        return this.invoke(window.repoAPI.getFileListByCommit, {hashOrBranch, path: repoPath})
+    async getFileListByCommit(hashOrBranch: string, repoPath: string) {
+        return this.enqueue(window.repoAPI.getFileListByCommit, {hashOrBranch, path: repoPath})
     }
 
     updateMainWindowRepoInfo(repo: RepoItem) {
         window.repoAPI.updateMainWindowRepoInfo(repo)
     }
     @ErrorDialog
-    checkRepoStatus(repo: RepoItem) {
-        return this.invoke(window.repoAPI.getRepoStaus, repo.path).then(res => {
-            this.repoStore.switchRepoStatus(repo, res)
+    async checkRepoStatus(repo: RepoItem) {
+        return this.enqueue(window.repoAPI.getRepoStaus, repo.path).then(async (res) => {
+            this.repoStore.switchRepoStatus(repo, await res)
         })
     }
     @ErrorDialog
-    getCurrentBranch(path: string) {
-        return this.invoke(window.repoAPI.getCurrentBranch, path)
+    async getCurrentBranch(path: string) {
+        return this.enqueue(window.repoAPI.getCurrentBranch, path)
     }
     @ErrorDialog
-    isLocalRepoExist(path: string) {
-        return this.invoke(window.repoAPI.isLocalRepoExist, path)
+    async isLocalRepoExist(path: string) {
+        return this.enqueue(window.repoAPI.isLocalRepoExist, path)
     }
 
     @ErrorDialog
-    getBranchCommtiCount(path: string, branch: string) {
-        return this.invoke(window.repoAPI.getBranchCommtiCount, {path, branch})
+    async getBranchCommtiCount(path: string, branch: string) {
+        return this.enqueue(window.repoAPI.getBranchCommtiCount, {path, branch})
     }
 }

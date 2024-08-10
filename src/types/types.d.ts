@@ -72,7 +72,7 @@ declare global {
                     defaultPath?: string
                 }
             ) => Promise<string[]>,
-            extractIcon: (ext: string) => Prmise<Base64Icon | Success>,
+            extractIcon: (ext: string) => Promise<Base64Icon | Success>,
             readImage: (path: string) => Promise<Base64Image>
             isPathExist: (path: string) => Promise<boolean>
             // 打开方式相关函数
