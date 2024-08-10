@@ -154,7 +154,7 @@ const onMouseEnter = (e: MouseEvent) => {
 const createOpenEditorProps = (item: openedFile): CustomEditorOptions => {
     return {
         fileName: item.name,
-        fileSize: item.objectSize || 0,
+        fileSize: parseInt(item.objectSize) || 0,
         fileType: getFileType(item.name),
         fileContent: item.content,
         readOnly: true,

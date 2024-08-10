@@ -35,11 +35,12 @@
 <script setup lang="ts">
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
-import { CommitFileInfo, FileDiffContext } from '@/types';
 import { onMounted, Ref, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import * as monaco from 'monaco-editor';
 import { getFileType } from '@/renderer/common/util/file';
+import { CommitFileInfo } from '@/types';
+import { FileDiffContext } from 'lib/git';
 
 const route = useRoute();
 const router = useRouter();

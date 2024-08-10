@@ -5,12 +5,11 @@
 import { workerThreadEnvInit } from "../common/utils/tools"
 workerThreadEnvInit()
 
-import { Branchs, CommitFileInfo, WorkTask } from "@/types"
+import { CommitFileInfo, CommitLogFields, WorkTask } from "@/types"
 import { parentPort  } from 'worker_threads'
-import { getLog} from "@/electron/common/utils/gitUtil.ts"
 import { logger } from "@/electron/logger/init"
 import { isPathExist } from "../common/utils/fileUtil"
-import { getAllAuthors, getBranchAuthors, getBranchCreateInfo, getBranches, getCommitLogFormat, getContributeStat, getCurrentBranch, getFileByHash, getFileContent, getFilesDiffContext, getRepoFileList, getRepositoryInfoFull, isGitRepository } from "../lib/gitUtil"
+import { getAllAuthors, getBranchAuthors, getBranchCreateInfo, getBranches, getCommitLogFormat, getContributeStat, getCurrentBranch, getFileByHash, getFilesDiffContext, getRepoFileList, getRepositoryInfoFull, isGitRepository } from "lib/git"
 
 interface PathAndBranch {
     path: string,
@@ -20,8 +19,19 @@ interface PathAndBranch {
 
 const _readCommitLog = async (param: PathAndBranch) => {
     const { path, branch } = param
-    const res = await getLog(path, branch)
-    parentPort?.postMessage(res)
+    const res = getCommitLogFormat(path, ['%h', '%ct', '%s', '%d', '%b', '%an', '%ae'], "", "")
+    const logs: CommitLogFields[] = res.map(item => {
+        return {
+            hash: item.hashS,
+            date: parseInt(item.committerDateTimeStamp) * 1000, //转换为毫秒数 
+            message: item.message,
+            refs: item.refs,
+            body: item.body,
+            author_name: item.authorName,
+            author_email: item.authorEmail,
+        }
+    })
+    parentPort?.postMessage(logs)
 }
 
 const _getContributors = (param: PathAndBranch) => {

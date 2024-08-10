@@ -14,7 +14,7 @@
                         <sub ref="email" class="email"> {{ detail.author_email }}</sub>
                     </div>
                     <div class="time">
-                        <span class="time">{{ formatDate(new Date(detail.date), 'YYYY-MM-DD HH:mm:ss') }}</span>
+                        <span class="time">{{ dayjs(detail.date).format('YYYY-MM-DD HH:mm') }}</span>
                     </div>
                 </div>
                 <span class="message" size="large" truncated>{{ detail.message }}</span>
@@ -34,10 +34,11 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { decode, encode } from "@/renderer/common/util/tools";
 import { RepoTaskService } from "@/renderer/common/entity/repoTaskService";
-import { RepoItem } from "@/types";
+import { CommitLogFields, RepoItem } from "@/types";
+import dayjs from "dayjs";
 
 const { detail, repo } = defineProps<{
-    detail: CommitDetail
+    detail: CommitLogFields
     repo:  RepoItem
 }>()
 

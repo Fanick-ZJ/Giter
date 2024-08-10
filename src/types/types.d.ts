@@ -2,7 +2,9 @@ import {IpcRendererEvent} from "electron";
 import {ContributorsRankItem, RepoItem, Repository,
         StatDailyContribute, AuthorStatDailyContributeMap, RemoteItem,
         Base64Icon, Success,
-        AbstractRepoItem, CommitFileInfo, BranchStatDailyContribute} from "@/types/index.ts";
+        AbstractRepoItem, CommitFileInfo, BranchStatDailyContribute,
+        Remote,
+        CommitLogFields} from "@/types/index.ts";
 import {DefaultLogFields} from "simple-git/dist/src/lib/tasks/log";
 import { BranchCreatedInfo } from "@/electron/common/utils/gitUtil";
 import { RouteInfo } from "./routeParamType";
@@ -17,15 +19,15 @@ declare global {
             renderAddRepo: (callback: (event: IpcRendererEvent, repo: AbstractRepoItem) => void)=> Electron.IpcRenderer,
             switchRepoStatus: (callback: (event: IpcRendererEvent, ...args: any[]) => void) => Electron.IpcRenderer,
             receiveUpdateRepoInfo: (Callback: (event: IpcRendererEvent, repo: RepoItem) => void) => Electron.IpcRenderer
-            isCommited: (path: string) => Promise<any>,
+            isCommited: (path: string) => Promise<boolean>,
             addRepoWatcher: (repos: RepoItem) => Promise<any>,
             isRepoExist: (path: string | string[]) => Promise<boolean | boolean[]>,
-            isPushed: (path: string) => Promise<any>,
-            getBrancheses: (path: string) => Promise<any>,
-            getRepoBranch: (path: string) => Promise<Branchs>,
-            getLog: (params: {path: string, branch: string}) => Promise<DefaultLogFields[]>
+            isPushed: (path: string) => Promise<boolean>,
+            getBrancheses: (path: string) => Promise<string[]>,
+            getRepoBranch: (path: string) => Promise<Branches>,
+            getLog: (params: {path: string, branch: string}) => Promise<CommitLogFields[]>
             stopWatching: (repo: RepoItem) => Promise<any>,
-            getRemote: (path: string) => Promise<RemoteItem[]>,
+            getRemote: (path: string) => Promise<Remote[]>,
             getContributors: (params: {path: string, branch: string}) => Promise<string[]>
             getBranchCreatorInfo: (params: {path: string, branch: string}) => Promise<BranchCreatedInfo>
             getContributorsRank: (params: {path: string, branch: string}) => Promise<ContributorsRankItem[]>

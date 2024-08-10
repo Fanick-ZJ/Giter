@@ -29,6 +29,7 @@ import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { useI18n } from 'vue-i18n';
 import { decode, encode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
+import _ from 'lodash';
 
 const route = useRoute()
 const router = useRouter()
@@ -87,14 +88,14 @@ const getRepoStatData = () => {
         // 获取仓库统计信息
         return repoTaskService.getContributeStat(repoInfo.value!.path, curBranch.value!.name)
     }).then(res => {
-        chartStore.start = res.start
-        chartStore.end = res.end
-        chartStore.changeFiles = res.changeFiles
-        chartStore.commitCount = res.commitCount
-        chartStore.deletions = res.deletions
-        chartStore.insertion = res.insertion
-        chartStore.dateList = res.dateList
-        chartStore.authorMap = res.authorMap
+        chartStore.start = res.totalStat.dateList[0]
+        chartStore.end = _.last(res.totalStat.dateList) || res.totalStat.dateList[0]
+        chartStore.changeFiles = res.totalStat.changeFiles
+        chartStore.commitCount = res.totalStat.commitCount
+        chartStore.deletions = res.totalStat.deletions
+        chartStore.insertion = res  .totalStat.insertion
+        chartStore.dateList = res.totalStat.dateList
+        chartStore.authorMap = res.authorsStat
         loading.value = false
         commitCount.value = chartStore.commitCount.reduce((acc, cur)=>{return acc+cur})
     })

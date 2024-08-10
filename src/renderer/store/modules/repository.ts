@@ -1,10 +1,7 @@
 import {defineStore} from 'pinia'
-import { AbstractRepoItem, Branchs, AuthorStatDailyContributeMap, RepoItem, StatDailyContribute } from '@/types'
-import {add, get, getStoreObject, put, remove} from '@/renderer/common/util/dbUtil'
-import { toRaw } from 'vue'
+import { AbstractRepoItem, RepoItem } from '@/types'
 import { RepoStatus } from '@/types'
 import { IpcRendererEvent } from 'electron'
-import { RepoTaskService } from '@/renderer/common/entity/repoTaskService'
 import { listAssign } from '@/renderer/common/util/tools'
 
 export const useRepoStore = defineStore('Repos', {

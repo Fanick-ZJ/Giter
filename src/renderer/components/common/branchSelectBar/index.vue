@@ -16,8 +16,8 @@
 
 <script lang="ts" setup>
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
-import { Branchs, RepoItem } from '@/types';
-import { PropType, nextTick, onMounted, ref, watch } from 'vue';
+import { Branches, RepoItem } from '@/types';
+import { PropType, onMounted, ref, watch } from 'vue';
 import { Icon } from '@iconify/vue';
 
 
@@ -67,7 +67,7 @@ const mountedFn = async () => {
         console.error('path is not defined')
     }
     else {
-        await repoTaskService.getRepoBranch(_path).then((res: Branchs) => {
+        await repoTaskService.getRepoBranch(_path).then((res: Branches) => {
             branchs.value.push(...res.all)
             // 如果有传入的分支则使用此份之，没有就使用当前分支
             if (props.branch) {

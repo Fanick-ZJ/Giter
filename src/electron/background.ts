@@ -7,7 +7,7 @@ import { tr } from "./app/lang/translate"
 import { app } from "electron"
 import { WindowsManager } from "./win/windowManager"
 import { actionInit } from "./app/actionInit"
-import { hasGit } from "./lib/gitUtil"
+import { hasGit } from "lib/git"
 // 建立全局事件总线
 // electron主进程文件
 // 初始化log

@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { TwoDimensionPos } from '@/renderer/types'
-import { RemoteItem, RepoItem, RepoStatus } from '@/types'
+import { RepoItem, RepoStatus } from '@/types'
 import {useRepoStore} from '@/renderer/store/modules/repository'
 import { getRemoteSiteIcon} from '@/renderer/common/util/gitUtil'
 import {ref, watch, onMounted, reactive, toRaw, onUnmounted, computed, h} from 'vue'
@@ -63,6 +63,7 @@ import { useOpenWith } from '@/renderer/store/modules/openWith'
 import { decode, encode } from '@/renderer/common/util/tools'
 import repoInfoEditDialog from '../dialog/repoInfoEditDialog/index'
 import { RepoService } from '@/electron/service/entity/repoService'
+import { Remote } from 'lib/git'
     const i18n = useI18n()
     const openWithStore = useOpenWith()
     const {repos} = defineProps<{
@@ -112,13 +113,15 @@ import { RepoService } from '@/electron/service/entity/repoService'
     let status_light_timer: NodeJS.Timeout
 
     // 远程仓库图标
-    const remoteSiteInfo = ref<RemoteItem[]>([])
+    const remoteSiteInfo = ref<Remote[]>([])
     const siteIcons = ref<string[]> ([])
     repos.isExist && repoTaskService.getRemote(repos.path).then(res => {
         remoteSiteInfo.value = [...res]
         remoteSiteInfo.value.forEach(item => {
-            let icon = getRemoteSiteIcon(item.fetch)
-            icon && siteIcons.value.push(icon)
+            if ("fetch" in item.operate) {
+                let icon = getRemoteSiteIcon(item.url)
+                icon && siteIcons.value.push(icon)
+            }
         })
     })
     onMounted(async () => {

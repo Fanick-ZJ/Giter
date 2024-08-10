@@ -50,7 +50,7 @@ import { useRepoStore } from '@/renderer/store/modules/repository';
 import { ref, onMounted, computed } from 'vue';
 import CommitDetailItem from "@/renderer/components/commitGraph/commitDetailItem.vue";
 import { CommitDetail } from '@/renderer/types';
-import { Branchs } from '@/types';
+import { Branches, CommitFileInfo, CommitLogFields } from '@/types';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
@@ -63,18 +63,18 @@ const path = computed(() => decode(route.params.path as string)) // 对编码的
 const respoStore = useRepoStore()
 // 根据路径获取仓库对象
 let respoItem = computed(() => respoStore.getRepoByPath(path.value))
-const branchs = ref<Array<string>>([])
+const branches = ref<Array<String>>([])
 const curBranch = ref()
 const loading = ref(true)
-const commitList = ref<CommitDetail[]>([])
+const commitList = ref<CommitLogFields[]>([])
 const repoTaskService = new RepoTaskService()
 
 const contributorsList = computed(() => Array.from(new Set(commitList.value.map((item) => item.author_name))))
 
 const mountedFn = () => {
     if (respoItem.value) {
-        repoTaskService.getRepoBranch(respoItem.value.path).then((res: Branchs) => {
-            branchs.value = res.all
+        repoTaskService.getRepoBranch(respoItem.value.path).then((res: Branches) => {
+            branches.value = res.all
             curBranch.value = res.current   // 默认选中第一个
             branchChange(curBranch.value)
         })
@@ -93,7 +93,7 @@ const branchChange = (value: string) => {
     if (respoItem.value){
         loading.value = true
         const resp = repoTaskService.getLog(respoItem.value.path, value)
-        resp.then( (res: CommitDetail[]) => {
+        resp.then( (res: CommitLogFields[]) => {
             commitList.value = res
             loading.value = false
         })
@@ -128,7 +128,7 @@ onRouteChangeUpdate(() => {
 
 // 过滤后的提交列表
 const filteredCommitList = computed(() => {
-    let _commitList: CommitDetail[] = commitList.value
+    let _commitList: CommitLogFields[] = commitList.value
     if (commitList.value) {
         if (filteredContributor.value) {
             _commitList = _commitList.filter((item) => item.author_name === filteredContributor.value)

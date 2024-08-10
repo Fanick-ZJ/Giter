@@ -1,7 +1,6 @@
 import { BrowserWindow, type IpcMainEvent, type IpcMainInvokeEvent } from "electron"
 import { spawn } from "child_process"
 import fsPath from "path"
-import { getBranchListContainCommit } from '../../common/utils/gitUtil';
 import { DialogType, type RepoItem, type AbstractRepoItem } from "@/types"
 import { WorkerThreadPoolMap, newWorker } from "@/electron/workers/workThread"
 import RepoWatcher, { addRepoWatcher } from "@/electron/watcher/RepoWatcher"
@@ -14,7 +13,7 @@ import { tr } from "@/electron/app/lang/translate"
 import { showErrorDialog } from "@/electron/common/utils/dialogUtil"
 import { RepositoryDB } from "@/electron/database/repositoryDB"
 import { WindowsManager } from "@/electron/win/windowManager"
-import { getBranches, getCurrentBranch, getRemote, getTags, hasGit, hasRemote, isCommited, isGitRepository, isPushed } from "@/electron/lib/gitUtil"
+import { getBranches, getCommitWithinBranches, getCurrentBranch, getRemote, getTags, hasGit, hasRemote, isCommited, isGitRepository, isPushed } from "lib/git"
 
 export class RepoService extends IpcMainBasicService{
     private wtpInstance: WorkerThreadPoolMap
@@ -49,7 +48,7 @@ export class RepoService extends IpcMainBasicService{
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     isPushed(event: IpcMainInvokeEvent, path: string) {
         const branch = getCurrentBranch(path)
-        const res = isPushed(path, branch.name)
+        const res = isPushed(path, branch)
         return res
     }
 
@@ -189,7 +188,7 @@ export class RepoService extends IpcMainBasicService{
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     getBranchListContainCommit(event: IpcMainInvokeEvent, params: {path: string, hash: string}) {
-        return getBranchListContainCommit(params.path, params.hash)
+        return getCommitWithinBranches(params.path, params.hash)
     }
     // 仓库相关的查询函数
 
@@ -200,7 +199,7 @@ export class RepoService extends IpcMainBasicService{
                 const item = repos[i]
                 item.isExist = isPathExist(item.path) && isGitRepository(item.path)
                 if (item.isExist) {
-                    item.curBranch = getCurrentBranch(item.path).name
+                    item.curBranch = getCurrentBranch(item.path)
                 }
             }
             return repos

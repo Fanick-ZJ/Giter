@@ -9,7 +9,7 @@ import fsPromise from "fs/promises"
 import { RepositoryDB } from '@/electron/database/repositoryDB'
 import RepoWatcherProcess from '@/electron/watcher/RepoWatcher'
 import { repoMainSend } from "@/electron/ipcAction/main/repository"
-import { isGitRepository, getCurrentBranch } from '@/electron/lib/gitUtil'
+import { isGitRepository, getCurrentBranch } from 'lib/git'
 
 
 export const importRespo = (window: BrowserWindow) => {

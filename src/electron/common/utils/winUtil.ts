@@ -1,6 +1,6 @@
 import path from 'path'
 import fs from 'fs'
-import { getIconFromPe } from '@/electron/lib/giterNative/index'
+import { getIconFromPe } from 'lib/giterNative/index'
 import { isPathExist } from './fileUtil'
 import { logger } from "@/electron/logger/init"
 import { Base64Icon, Success } from '@/types'
