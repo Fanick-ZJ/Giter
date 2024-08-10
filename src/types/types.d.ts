@@ -40,6 +40,7 @@ declare global {
             hasGit: () => Promise<boolean>
             getCommitFileInfo: (params: {path: string, hash: string}) => Promise<CommitFileInfo>
             getBranchListContainCommit: (params: {path: string, hash: string}) => Promise<string[]>
+            getRepoStaus: (path: String) => Promise<RepoStatus>
             // 仓库相关函数
             getAllRepos: () => Promise<RepoItem[]>
             delRepo: (path: string) => Promise<void>

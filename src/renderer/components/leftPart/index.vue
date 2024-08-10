@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import {onUnmounted, reactive, ref} from 'vue';
+import {ref} from 'vue';
 import ReposItem from './reposItem.vue'
 import {useRepoStore} from '@/renderer/store/modules/repository'
 const leftBar = ref<HTMLElement>()

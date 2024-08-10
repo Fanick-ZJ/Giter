@@ -19,7 +19,7 @@
 import { useRepoStore } from '@/renderer/store/modules/repository';
 import { useRoute, useRouter } from 'vue-router';
 import {computed, onBeforeMount, onMounted, onUnmounted, ref, watch} from 'vue'
-import { Branch, ContributorsRankItem, RepoItem, Repository} from '@/types';
+import { ContributorsRankItem, RepoItem, Repository} from '@/types';
 import InfoBar from '@/renderer/components/detail/infoBar.vue'
 import AuthorWall from '@/renderer/components/detail/authorWall.vue'
 import ContributeMaseterChart  from '@/renderer/components/detail/contributeMasterChart.vue'
@@ -30,6 +30,7 @@ import { useI18n } from 'vue-i18n';
 import { decode, encode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
 import _ from 'lodash';
+import { Branch } from 'lib/git';
 
 const route = useRoute()
 const router = useRouter()

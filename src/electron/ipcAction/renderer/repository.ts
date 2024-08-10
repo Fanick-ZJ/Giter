@@ -143,5 +143,9 @@ export const reposRenderSender = {
 
     updateMainWindowRepoInfo: (
         repo: RepoItem
-    ) => ipcRenderer.send('repos::updateMainWindowRepoInfo', repo)
+    ) => ipcRenderer.send('repos::updateMainWindowRepoInfo', repo),
+    getRepoStaus: (
+        path: string,
+        taskId: string
+    ) => ipcRenderer.invoke('repos::getRepoStaus', path, taskId),
 }

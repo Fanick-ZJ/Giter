@@ -9,7 +9,7 @@ import { CommitFileInfo, CommitLogFields, WorkTask } from "@/types"
 import { parentPort  } from 'worker_threads'
 import { logger } from "@/electron/logger/init"
 import { isPathExist } from "../common/utils/fileUtil"
-import { getAllAuthors, getBranchAuthors, getBranchCreateInfo, getBranches, getCommitLogFormat, getContributeStat, getCurrentBranch, getFileByHash, getFilesDiffContext, getRepoFileList, getRepositoryInfoFull, isGitRepository } from "lib/git"
+import { getAllAuthors, getBranchAuthors, getBranchCreateInfo, getBranches, getCommitLogFormat, getContributeStat, getCurrentBranch, getFileByHash, getFilesDiffContext, getRepoFileList, getRepositoryInfoFull, getStatus, isGitRepository } from "lib/git"
 
 interface PathAndBranch {
     path: string,
@@ -119,6 +119,13 @@ const _isRepoExist = async (path: string | string[]) => {
     }
     parentPort?.postMessage(res)
 }
+
+const _getRepoStaus = (path: string) => {
+    const res = getStatus(path)
+    parentPort?.postMessage(res)
+}
+
+
 const ACTION_MAP = new Map<string, (...args: any[]) => void>([
     ['getLog', _readCommitLog],
     ['getContributors', _getContributors],
@@ -132,6 +139,7 @@ const ACTION_MAP = new Map<string, (...args: any[]) => void>([
     ['isRepoExist', _isRepoExist],
     ['getCommitFileInfo', _getCommitFileInfo],
     ['getFileListByCommit', _getFileListByCommit],
+    ['getRepoStaus', _getRepoStaus]
 ])
 const message = (e: WorkTask<any>) => {
     // 根据名字来执行不同的任务

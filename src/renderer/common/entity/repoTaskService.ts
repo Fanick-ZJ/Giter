@@ -236,4 +236,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
     updateMainWindowRepoInfo(repo: RepoItem) {
         window.repoAPI.updateMainWindowRepoInfo(repo)
     }
+    @ErrorDialog
+    checkRepoStatus(repo: RepoItem) {
+        return this.invoke(window.repoAPI.getRepoStaus, repo.path).then(res => {
+            this.repoStore.switchRepoStatus(repo, res)
+        })
+    }
 }

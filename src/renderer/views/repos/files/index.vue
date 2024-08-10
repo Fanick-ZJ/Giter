@@ -28,11 +28,12 @@ import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode, encode } from '@/renderer/common/util/tools';
 import { FilePath, useFileStore } from '@/renderer/store/modules/files';
 import { useRepoStore } from '@/renderer/store/modules/repository';
-import { RepoFileInfo, RepoItem } from '@/types';
+import { RepoItem } from '@/types';
 import { ArrowRight } from '@element-plus/icons-vue'
 import { Ref, computed, nextTick, onMounted, ref, watch } from 'vue';
 import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
+import { RepoFileInfo } from 'lib/git';
 
 const route = useRoute()
 const router = useRouter()

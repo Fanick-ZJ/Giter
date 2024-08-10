@@ -1,4 +1,4 @@
-import { RepoFileInfo } from "@/types"
+import { RepoFileInfo } from "lib/git"
 import { ComponentPublicInstance, VNode } from "vue"
 
 /**
@@ -201,7 +201,7 @@ export type PreventCheckFn = (e?: TouchEvent, el?: HTMLElement) => boolean
 
 
 // 打开的文件
-export type openedFile = RepoFileInfo 
+export type openedFile = RepoFileInfo
             & Record<'content', string>
             & Record<'repo', string>
             & Record<'branch', string>

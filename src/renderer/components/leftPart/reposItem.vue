@@ -142,12 +142,8 @@ import { Remote } from 'lib/git'
                 statues_bar_show.value = false
         })
         if (repos.isExist && repos.watchable){
-            // 检查是否已经提交
-            repoTaskService.isCommitedFn(repos).then(
-                res => repoTaskService.isPushedFn(repos)
-            ).then(
-                res => repoTaskService.addRepoWatcher(repos)
-            )
+            // 检查仓库文件提交状态
+            repoTaskService.checkRepoStatus(repos)
             
         }
     })

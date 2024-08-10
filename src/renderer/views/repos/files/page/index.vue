@@ -18,10 +18,10 @@ import { computed, nextTick, onMounted, onUnmounted, reactive, ref, toRaw, watch
 import debounce from 'lodash/debounce'
 import { useRouter, useRoute } from 'vue-router'
 import FileNode  from '@/renderer/components/files/fileNode.vue'
-import { RepoFileInfo } from '@/types';
 import { build_path } from '@/renderer/common/util/file';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
+import { RepoFileInfo } from 'lib/git';
 
 
 type RepoPageContent = {

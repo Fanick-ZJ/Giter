@@ -28,6 +28,7 @@ import * as echarts from 'echarts';
 import { formatDateTime } from '@/renderer/common/util/timeUtil';
 import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import { CurShowData } from '@/renderer/types';
+import dayjs from 'dayjs';
 
 type TableOptionItem = {
     name: string,
@@ -93,7 +94,7 @@ const flashChartData = () => {
     };
     // x轴
     options.xAxis = {
-        data: chartStore.dateList.map(item => formatDateTime(item, 'yyyy-MM-dd')),
+        data: chartStore.dateList.map(item => dayjs(item).format('YYYY-MM-DD')),
     };
     // y轴
     options.yAxis = {};
@@ -137,8 +138,8 @@ const chartOverShowDailyData = (params: any, asyncTicket: string): HTMLElement[]
     const res: HTMLElement[] = []
     let arr:any[] = []
     chartStore.authorMap.forEach(item => {
-        for(let i = 0 ; i < item.dateList.length; i++){
-            if(formatDateTime(item.dateList[i], 'yyyy-MM-dd') == params[0].name){
+        for(let i = 0 ; i < item.stat.dateList.length; i++){
+            if(dayjs(item.stat.dateList[i]).format("YYYY-MM-DD") == params[0].name){
                 arr.push([item.author.name, chartStore.curAuthorDataList(item.author.name)[i]])
                 return
             }

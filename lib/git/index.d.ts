@@ -7,6 +7,13 @@ export interface Author {
   name: string
   email: string
 }
+export const enum RepoStatus {
+  UnCommit = 0,
+  UnPush = 1,
+  UnPull = 2,
+  UnKnown = 3,
+  Ok = 4
+}
 export interface BranchCreatedInfo {
   name: string
   time: string
@@ -127,6 +134,11 @@ export declare function isCommited(path: string): boolean
  * @param branch branch name
 */
 export declare function isPushed(path: string, branch: string): boolean
+/**
+ * Get the status of a repository
+ * @param path path to the repository
+*/
+export declare function getStatus(path: string): RepoStatus
 /**
  * Get the current branch name
  * @param path path to the repository

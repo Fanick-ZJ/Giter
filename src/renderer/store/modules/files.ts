@@ -1,12 +1,12 @@
 import { basename } from "@/renderer/common/util/file";
 import { uuid } from "@/renderer/common/util/tools";
-import { RepoFileInfo } from "@/types";
 import { defineStore } from "pinia";
 import _ from 'lodash'
 import { useRoute, useRouter } from "vue-router";
 import { ref } from "vue";
 import { RepoTaskService } from "@/renderer/common/entity/repoTaskService";
 import { openedFile } from "@/renderer/types";
+import { RepoFileInfo } from "lib/git";
 
 type PathId = string
 export type FilePath = {

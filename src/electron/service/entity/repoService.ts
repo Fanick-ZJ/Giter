@@ -187,6 +187,12 @@ export class RepoService extends IpcMainBasicService{
     }
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
+    getRepoStaus(event: IpcMainInvokeEvent, repoPath: string) {
+        const res = this.wtpInstance.run('repos', {name: 'getRepoStaus', params: repoPath})
+        return res
+    }
+
+    @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     getBranchListContainCommit(event: IpcMainInvokeEvent, params: {path: string, hash: string}) {
         return getCommitWithinBranches(params.path, params.hash)
     }

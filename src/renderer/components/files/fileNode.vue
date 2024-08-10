@@ -21,11 +21,11 @@
 
 <script lang="ts" setup>
 import { Icon } from '@iconify/vue';
-import { RepoFileInfo } from '@/types';
 import { PropType, ref, computed } from 'vue';
 import { getExt, getIconByExt } from '@/renderer/common/util/file';
 import { useFileStore } from '@/renderer/store/modules/files';
 import { useRoute } from 'vue-router';
+import { RepoFileInfo } from 'lib/git';
 
 type NodeSize = 'large' | 'small' | 'medium' | never
 
