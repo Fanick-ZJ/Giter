@@ -8,7 +8,8 @@
             <div class="contributors-list">
                 <div class="contributor" 
                     v-for="item in props.contributorsRankList" 
-                    @mouseover="mouseEnterAuthorAvater($event, item)">
+                    @mouseover="mouseEnterAuthorAvater($event, item)"
+                    :key="item.email + props.repoInfo.path">
                     <!-- {{ item }} -->
                     <Avatar :author="item" :width="50" :border-radius="5"></Avatar>
                 </div>
@@ -42,11 +43,13 @@
 
 <script setup lang="ts">
 import Avatar from '@/renderer/components/common/hashAvatar/index.vue'
+import { RepoItem } from '@/types';
 import { Author } from 'lib/git';
 import { ref, watch } from 'vue';
 
 const props = defineProps<{
-    contributorsRankList: Author[]
+    contributorsRankList: Author[],
+    repoInfo: RepoItem
 }>()
 
 const authorRef = ref() // 鼠标移入记录用户引用

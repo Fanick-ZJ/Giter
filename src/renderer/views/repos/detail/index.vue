@@ -7,7 +7,7 @@
             </el-col>
         </div>
         <InfoBar :path="path" :branch="repo.curBranch"></InfoBar>
-        <AuthorWall :contributors-rank-list="contributorsRankList" style="margin-bottom: 10px;"></AuthorWall>
+        <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
         <ContributeMaseterChart></ContributeMaseterChart>
         <div class="author-charts">
             <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="item.author.email"></authorContributeChart>
@@ -70,6 +70,7 @@ const getRepoStatData = (branch: string) => {
         // 获取仓库统计信息
         return repoTaskService.getContributeStat(repo.path, branch)
     }).then(res => {
+        console.log("获取贡献数据完成")
         chartStore.start = res.totalStat.dateList[0]
         chartStore.end = _.last(res.totalStat.dateList) || res.totalStat.dateList[0]
         chartStore.changeFiles = res.totalStat.changeFiles
@@ -91,6 +92,7 @@ watch(
         repoTaskService.interrupt()
         if (newRoute.startsWith('/repos/detail/')){
             repo = repoStore.getRepoByPath(path.value) as RepoItem
+            getRepoStatData(repo.curBranch)
         }
     }
 );
