@@ -30,7 +30,7 @@ declare global {
             getRemote: (path: string) => Promise<Remote[]>,
             getContributors: (params: {path: string, branch: string}) => Promise<string[]>
             getBranchCreatorInfo: (params: {path: string, branch: string}) => Promise<BranchCreatedInfo>
-            getContributorsRank: (params: {path: string, branch: string}) => Promise<ContributorsRankItem[]>
+            getBranchContributorsRank: (params: {path: string, branch: string}) => Promise<ContributorsRankItem[]>
             getRepositoryInfo: (params: {path: string}) => Promise<Repository>
             getTags: (params: {path: string}) => Promise<string[]>
             getContributeStat: (params: {path: string, branch: string}) => Promise<BranchStatDailyContribute>
@@ -41,12 +41,14 @@ declare global {
             getCommitFileInfo: (params: {path: string, hash: string}) => Promise<CommitFileInfo>
             getBranchListContainCommit: (params: {path: string, hash: string}) => Promise<string[]>
             getRepoStaus: (path: String) => Promise<RepoStatus>
-            // 仓库相关函数
-            getAllRepos: () => Promise<RepoItem[]>
+            getAllRepos: (full: boolean = false) => Promise<RepoItem[]>
             delRepo: (path: string) => Promise<void>
             updateRepo: (repo: RepoItem) => Promise<void>
             getFileListByCommit: (params: {path: string, hashOrBranch: string}) => Promise<FileInfo[]>
             updateMainWindowRepoInfo: (repo: RepoItem) => void
+            getCurrentBranch: (path: string) => Promise<string>
+            isLocalRepoExist: (path: string) => Promise<boolean>
+            getBranchCommtiCount: (params: {path: string, branch: string}) => Promise<number>
         },
         dialogAPI: {
             closeDialog: (wid: number)=> void,
@@ -72,6 +74,7 @@ declare global {
             ) => Promise<string[]>,
             extractIcon: (ext: string) => Prmise<Base64Icon | Success>,
             readImage: (path: string) => Promise<Base64Image>
+            isPathExist: (path: string) => Promise<boolean>
             // 打开方式相关函数
             getAllOpenWithApps: () => Promise<OpenWithAppItem[]>
             delOpenWithApp: (path: string) => Promise<void>

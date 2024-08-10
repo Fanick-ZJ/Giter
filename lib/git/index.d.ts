@@ -302,3 +302,4 @@ export declare function getDiffFileStatBetweenCommit(repo: string, commitHash1: 
 */
 export declare function getFilesDiffContext(repo: string, commitHash1: string, commitHash2: string): Array<FileDiffContext>
 export declare function getCommitWithinBranches(repo: string, commitHash: string): Array<string>
+export declare function getBranchCommitCount(path: string, branch: string): number

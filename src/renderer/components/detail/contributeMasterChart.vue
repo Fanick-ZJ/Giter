@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <div class="timeAndSelect">
-            <div class="time">{{ formatDateTime(chartStore.start, 'yyyy-MM-dd') }} – {{ formatDateTime(chartStore.end, 'yyyy-MM-dd') }}</div>
+            <div class="time">{{ chartStore.start }} – {{ chartStore.end }}</div>
             <div class="select-box">
                 <!-- 当绑定的值位对象时，要使用value-key来指定key -->
                 <el-select v-model="chartStore.curShowData" size="large" placeholder="Select" value-key="value" @change="onSelectChange">
@@ -25,7 +25,6 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, watch, markRaw, nextTick } from 'vue';
 import * as echarts from 'echarts';
-import { formatDateTime } from '@/renderer/common/util/timeUtil';
 import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import { CurShowData } from '@/renderer/types';
 import dayjs from 'dayjs';

@@ -6,8 +6,6 @@ import { apiMap } from "../util/apiUtil";
  * 有些时候在执行一些相对费时的操作时，在此期间切换界面不会时原有的
  * promise函数中断，仍然会继续执行，所以需要有一个类对所有任务进行
  * 统一管理，实现对任务的中断操作。是单例模式
- * 
- * 
  */
 export class IpcRendererBasicTaskService{
     private taskTagMap = new Map<string, Function>;
@@ -28,12 +26,12 @@ export class IpcRendererBasicTaskService{
         this.taskTagMap.set(taskId, func);      // 设立id->task的映射关系
         // console.log("执行任务", apiMap.get(func), args, taskId)
         args.push(taskId)
-        const t1 = new Date()
+        // const t1 = new Date()
         let fn_ret = func(...args);     // 执行任务
         if (fn_ret instanceof Promise){
             fn_ret = fn_ret.then(res => {
-                const t2 = new Date()
-                console.log(`任务${apiMap.get(func)}执行时间, ${args}`, t2.getTime() - t1.getTime())
+                // const t2 = new Date()
+                // console.log(`任务${apiMap.get(func)}执行时间, ${args}`, t2.getTime() - t1.getTime())
                 if(this.taskTagMap.has(taskId)){
                     this.taskTagMap.delete(taskId)
                     return Promise.resolve(res)

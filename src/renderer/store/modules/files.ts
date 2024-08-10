@@ -95,7 +95,9 @@ export const useFileStore = defineStore('files', () => {
     const getFileByPath = (filePath: string) => {
         if (filePath == '') return []
         if (filePath == '/') return fileList.value
-        const pathList = filePath.split('/')
+        const pathList = filePath.indexOf('./') == 0 ? filePath.slice(2).split('/') : filePath.split('/')
+        console.log(filePath)
+        console.log(fileList)
         let tmpList = fileList.value
         for (const i in pathList){
             const found = tmpList.find(item => item.name === pathList[i])

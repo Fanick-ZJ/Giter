@@ -76,13 +76,13 @@ export const reposRenderSender = {
         },
         taskId: string
     ) => ipcRenderer.invoke('repos::getTags', params, taskId),
-    getContributorsRank: ( // 获取分支创建者和时间
+    getBranchContributorsRank: ( // 获取分支创建者和时间
         params: {
             path: string,
             branch: string
         },
         taskId: string
-    ) => ipcRenderer.invoke('repos::getContributorsRank', params, taskId),
+    ) => ipcRenderer.invoke('repos::getBranchContributorsRank', params, taskId),
     getContributeStat: ( // 获取分支创建者和时间
         params: {
             path: string,
@@ -127,7 +127,7 @@ export const reposRenderSender = {
         taskId: string
     ) => ipcRenderer.invoke('repos::getBranchListContainCommit', params, taskId),
     // 关于仓库相关的
-    getAllRepos: (taskId: string) => ipcRenderer.invoke('repos::getAllRepos', taskId),
+    getAllRepos: (full: boolean = false, taskId: string) => ipcRenderer.invoke('repos::getAllRepos', full, taskId),
     updateRepo: (repo: RepoItem, taskId: string) => ipcRenderer.invoke('repos::updateRepo', repo, taskId),
     delRepo: (        
         path: string,
@@ -148,4 +148,19 @@ export const reposRenderSender = {
         path: string,
         taskId: string
     ) => ipcRenderer.invoke('repos::getRepoStaus', path, taskId),
+    getCurrentBranch: (
+        path: string,
+        taskId: string
+    ) => ipcRenderer.invoke('repos::getCurrentBranch', path, taskId),
+    isLocalRepoExist: (
+        path: string,
+        taskId: string
+    ) => ipcRenderer.invoke('repos::isLocalRepoExist', path, taskId),
+    getBranchCommtiCount: (
+        params: {
+            path: string,
+            branch: string
+        },
+        taskId: string
+    ) => ipcRenderer.invoke('repos::getBranchCommtiCount', params, taskId),
 }

@@ -16,8 +16,8 @@ import { Author } from '@/types';
 import Avatar from '@/renderer/components/common/hashAvatar/index.vue'
 import { nextTick, onMounted, reactive, ref, watch } from 'vue';
 import * as echarts from 'echarts';
-import { formatDateTime } from '@/renderer/common/util/timeUtil';
 import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
+import dayjs from 'dayjs';
 const props = defineProps<{
     author: Author
 }>()
@@ -52,7 +52,7 @@ let authorChart: echarts.ECharts
     // x轴
     options.xAxis = {
         // show: false,
-        data: chartStore.getUserDateList(props.author.name).map(item => formatDateTime(item, 'yyyy-MM-dd')),
+        data: chartStore.getUserDateList(props.author.name).map(item => dayjs(item).format('YYYY-MM-DD')),
     };
     // y轴
     options.yAxis = {};

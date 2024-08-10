@@ -7,24 +7,44 @@
             </el-col>
             <el-col :span="8" class="info-bar-item">
                 <Icon icon="iconoir:git-fork" color="black" width="20"/>
-                <el-text size="large" class="info-bar-content">{{repoInfo?.branchs.length}} {{ $t('detailPage.branchCount') }}</el-text>
+                <el-text size="large" class="info-bar-content">{{branches.length}} {{ $t('detailPage.branchCount') }}</el-text>
             </el-col>
             <el-col :span="8" class="info-bar-item">
                 <Icon icon="mdi:tag-outline" color="black" width="20"/>
-                <el-text size="large" class="info-bar-content">{{tags?.length}} {{ $t('detailPage.tagCount') }}</el-text>
+                <el-text size="large" class="info-bar-content">{{tags.length}} {{ $t('detailPage.tagCount') }}</el-text>
             </el-col>
         </el-row>
     </div>
 </template>
 
 <script setup lang="ts">
-import { Repository } from '@/types';
+import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { Icon } from '@iconify/vue'
-const {commitCount, repoInfo, tags} = defineProps<{
-    commitCount: Number | undefined
-    repoInfo: Repository | undefined
-    tags: String[] | undefined
+import { onMounted, ref, watch } from 'vue';
+const {path, branch} = defineProps<{
+    path: string,
+    branch: string,
 }>()
+const tags = ref<String[]>([])
+const branches = ref<String[]>([])
+const repoTaskService = new RepoTaskService()
+const commitCount = ref(0)
+onMounted(()=>{
+    repoTaskService.getTags(path).then(res=>{
+        tags.value = res
+    })
+})
+
+watch(()=>branch,()=>{
+    repoTaskService.getBrancheses(path).then(res=>{
+        branches.value = res
+    })
+    repoTaskService.getBranchCommtiCount(path, branch).then(res=>{
+        commitCount.value = res
+    })
+}, {
+    immediate: true
+})
 </script>
 
 <style lang='scss' scoped>

@@ -1,10 +1,10 @@
 import { RepoStatus } from "@/types";
 import type {AbstractRepoItem, Branchs, RepoItem} from '@/types'
-import { add, get, getStoreObject, put, remove } from "../util/dbUtil";
 import { useRepoStore } from "@/renderer/store/modules/repository";
 import { toRaw } from "vue";
 import { IpcRendererBasicTaskService } from "./ipcRendererBasicTaskService";
 import ErrorDialog from "../decorators/errorDialog";
+import { getCurrentBranch } from 'lib/git';
 export class RepoTaskService extends IpcRendererBasicTaskService{
     repoStore = useRepoStore()
     /**
@@ -13,7 +13,7 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
     @ErrorDialog
     storeGetAllRepos() {
         console.log('开始获取仓库列表')
-        this.invoke(window.repoAPI.getAllRepos).then(repos => {
+        this.invoke(window.repoAPI.getAllRepos, false).then(repos => {
             this.repoStore.set(repos)
         })
     }
@@ -152,10 +152,10 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    getContributorsRank (path: string, branch: string) {
+    getBranchContributorsRank (path: string, branch: string) {
         console.log('执行获取当前分支贡献者排名')
         const param = {path, branch}
-        const invokeRet = this.invoke(window.repoAPI.getContributorsRank, param)
+        const invokeRet = this.invoke(window.repoAPI.getBranchContributorsRank, param)
         return invokeRet
     }
     /**
@@ -241,5 +241,18 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
         return this.invoke(window.repoAPI.getRepoStaus, repo.path).then(res => {
             this.repoStore.switchRepoStatus(repo, res)
         })
+    }
+    @ErrorDialog
+    getCurrentBranch(path: string) {
+        return this.invoke(window.repoAPI.getCurrentBranch, path)
+    }
+    @ErrorDialog
+    isLocalRepoExist(path: string) {
+        return this.invoke(window.repoAPI.isLocalRepoExist, path)
+    }
+
+    @ErrorDialog
+    getBranchCommtiCount(path: string, branch: string) {
+        return this.invoke(window.repoAPI.getBranchCommtiCount, {path, branch})
     }
 }

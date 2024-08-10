@@ -14,6 +14,7 @@ import { TipDialog } from "@/electron/app/tipDialog/index"
 import { extractIcon } from "@/electron/common/utils/winUtil"
 import { OpenWithDB } from "@/electron/database/openWithDB"
 import { WindowsManager } from "@/electron/win/windowManager"
+import { isPathExist } from "@/electron/common/utils/fileUtil"
 
 export class ExplorerService extends IpcMainBasicService{
     bus = EventBus.getInstance()
@@ -109,6 +110,11 @@ export class ExplorerService extends IpcMainBasicService{
             const ext = path.split('.').pop()
             return `data:image/${ext};base64,`+Buffer.from(data).toString('base64')
         })
+    }
+
+    @IpcAction(IpcActionEnum.ipcMainHandle) @Task
+    isPathExist(event: IpcMainInvokeEvent, path: string) {
+        return isPathExist(path)
     }
 
     // 打开方式相关的查询函数

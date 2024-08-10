@@ -9,7 +9,8 @@
                 <div class="contributor" 
                     v-for="item in props.contributorsRankList" 
                     @mouseover="mouseEnterAuthorAvater($event, item)">
-                    <Avatar :author="item.author" :width="50" :border-radius="5"></Avatar>
+                    <!-- {{ item }} -->
+                    <Avatar :author="item" :width="50" :border-radius="5"></Avatar>
                 </div>
             </div>
         </div>
@@ -31,9 +32,9 @@
                 ],
             }"
             virtual-triggering> 
-            <template #content> {{ $t('author.name') }}: {{ curAuthorInfo?.author.name }}<br />
-                {{ $t('author.email') }}: {{ curAuthorInfo?.author.email }}<br />
-                {{ $t('author.commits') }}: {{ curAuthorInfo?.count }}<br />
+            <template #content> {{ $t('author.name') }}: {{ curAuthorInfo?.name }}<br />
+                {{ $t('author.email') }}: {{ curAuthorInfo?.email }}<br />
+                <!-- {{ $t('author.commits') }}: {{ curAuthorInfo?.count }}<br /> -->
             </template>
         </el-tooltip>
     </div>
@@ -41,18 +42,18 @@
 
 <script setup lang="ts">
 import Avatar from '@/renderer/components/common/hashAvatar/index.vue'
-import { ContributorsRankItem } from '@/types';
+import { Author } from 'lib/git';
 import { ref, watch } from 'vue';
 
 const props = defineProps<{
-    contributorsRankList: ContributorsRankItem[] | undefined
+    contributorsRankList: Author[]
 }>()
 
 const authorRef = ref() // 鼠标移入记录用户引用
 const tooltipRef = ref()    // 提示框引用
-const curAuthorInfo = ref<ContributorsRankItem>()
+const curAuthorInfo = ref<Author>()
 
-const mouseEnterAuthorAvater = (e: MouseEvent, item: ContributorsRankItem) => {
+const mouseEnterAuthorAvater = (e: MouseEvent, item: Author) => {
     authorRef.value = e.currentTarget
     curAuthorInfo.value = item
 }

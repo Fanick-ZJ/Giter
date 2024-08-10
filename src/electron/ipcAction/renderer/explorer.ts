@@ -20,6 +20,7 @@ export const explorerSender = {
     ) => {
         return ipcRenderer.invoke('explorer::showOpenDialog', params, taskId)
     },
+    isPathExist: (path: string, taskId: string) => ipcRenderer.invoke('explorer::isPathExist', path, taskId),
     extractIcon: (ext: string, taskId: string) => ipcRenderer.invoke('explorer::extractIcon', ext, taskId),
     readImage: (path: string, taskId: string) => ipcRenderer.invoke('explorer::readImage', path, taskId),
     // 关于打开方式相关的

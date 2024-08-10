@@ -95,16 +95,6 @@ export type Repository = {
     remote: string
     path: Path
 }
-
-
-/**
- * 贡献作者按照提交次序排名的元素
- */
-export type ContributorsRankItem = {
-    author: Author
-    count: number
-}
-
 /**
  * 工作线程任务类型
  */

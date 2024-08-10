@@ -2,7 +2,7 @@
     <div>
         <el-select v-model="curBranch" placeholder="Select" :size="size" @change="emit('change', curBranch)">
             <el-option
-                v-for="item in branchs"
+                v-for="item in branches"
                 :key="item"
                 :label="item"
                 :value="item"
@@ -55,23 +55,23 @@ const emit = defineEmits<{
     (e: 'change', branch: string): void
 }>()
 const repoTaskService = new RepoTaskService()
-const branchs = ref<string[]>([])
+const branches = ref<string[]>([])
 const curBranch = ref()
-const mountedFn = async () => {
-    branchs.value = []
+const getBranches = async () => {
+    branches.value = []
     let _path = props.repoInfo ? props.repoInfo.path : props.repoPath
     if (props.branch) {
-        branchs.value.push(props.branch.slice(0, 10))
+        branches.value.push(props.branch)
     }
-    if (!_path) {
-        console.error('path is not defined')
+    else if (!_path) {
+        // console.error('path is not defined')
     }
     else {
         await repoTaskService.getRepoBranch(_path).then((res: Branches) => {
-            branchs.value.push(...res.all)
+            branches.value.push(...res.all)
             // 如果有传入的分支则使用此份之，没有就使用当前分支
             if (props.branch) {
-                curBranch.value = branchs.value[0]
+                curBranch.value = branches.value[0]
             } else {
                 curBranch.value = res.current
             }
@@ -79,15 +79,15 @@ const mountedFn = async () => {
     }
 }
 onMounted(() => {
-    mountedFn()
+    getBranches()
 })
 
 watch(() => props.repoInfo, async () => {
-    await mountedFn()
+    await getBranches()
 })
 
 watch(() => props.repoPath, async () => {
-    await mountedFn()
+    await getBranches()
 })
 </script>
 

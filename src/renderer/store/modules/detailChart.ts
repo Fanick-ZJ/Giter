@@ -38,9 +38,9 @@ export const useDetailChartStore = defineStore('detailChartStore', {
             }
             return []
         },
-        getUserDateList(authorName: string): Date[]{
+        getUserDateList(authorName: string): string[]{
             const author = this.authorMap.find(item => item.author.name == authorName)
-            if (author) return author.stat.dateList.map(item => new Date(item))
+            if (author) return author.stat.dateList.map(item => item)
             return []
         },
         clear(){

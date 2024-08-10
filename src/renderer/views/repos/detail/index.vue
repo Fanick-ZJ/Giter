@@ -3,14 +3,14 @@
         <div class="head">
             <!-- 当绑定的值位对象时，要使用value-key来指定key -->
             <el-col :span="8" class="select-box">
-                <branch-select-bar :repo-path="repoInfo?.path" size="small" @change="getRepoStatData"/>
+                <branch-select-bar :repo-info="repo"ize="small" @change="getRepoStatData"/>
             </el-col>
         </div>
-        <InfoBar :commit-count="commitCount" :tags="tags" :repo-info="repoInfo"></InfoBar>
+        <InfoBar :path="path" :branch="repo.curBranch"></InfoBar>
         <AuthorWall :contributors-rank-list="contributorsRankList" style="margin-bottom: 10px;"></AuthorWall>
         <ContributeMaseterChart></ContributeMaseterChart>
         <div class="author-charts">
-            <authorContributeChart v-for="item in chartStore.authorMap" :author="item[1].author" :key="item[1].key"></authorContributeChart>
+            <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="item.author.email"></authorContributeChart>
         </div>
     </div>
 </template>
@@ -19,7 +19,7 @@
 import { useRepoStore } from '@/renderer/store/modules/repository';
 import { useRoute, useRouter } from 'vue-router';
 import {computed, onBeforeMount, onMounted, onUnmounted, ref, watch} from 'vue'
-import { ContributorsRankItem, RepoItem, Repository} from '@/types';
+import { RepoItem, Repository} from '@/types';
 import InfoBar from '@/renderer/components/detail/infoBar.vue'
 import AuthorWall from '@/renderer/components/detail/authorWall.vue'
 import ContributeMaseterChart  from '@/renderer/components/detail/contributeMasterChart.vue'
@@ -30,7 +30,7 @@ import { useI18n } from 'vue-i18n';
 import { decode, encode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
 import _ from 'lodash';
-import { Branch } from 'lib/git';
+import { Author, Branch } from 'lib/git';
 
 const route = useRoute()
 const router = useRouter()
@@ -38,56 +38,37 @@ const path = computed(() => decode(route.params.path as string)) // 对编码的
 const repoStore = useRepoStore()
 let repo = repoStore.getRepoByPath(path.value) as RepoItem
 // 如果仓库不在的话就跳转到错误页面
-onBeforeMount( () => {
+onBeforeMount(async () => {
     if (!repo){
         // 导航到错误页面
         router.push('/error/common/no_repo_found_title/no_repo_found_content/no_repo_found_tip')
     }
 })
-const curBranch = ref<Branch | undefined>()     // 当前分支
+
+const curBranch = ref<string>(repo.curBranch)     // 当前分支
 const i18n = useI18n()
 const repoInfo = ref<Repository>()  // 仓库信息
-const commitCount = ref<Number>(0)              // 当前分支提交次数
-const contributorsRankList = ref<ContributorsRankItem[]>()  // 当前分支贡献者列表
-const tags = ref<String[]>()
+const commitCount = ref<number>(0)              // 当前分支提交次数
+const contributorsRankList = ref<Author[]>([])  // 当前分支贡献者列表
 const loading = ref<boolean>(true)
 const repoTaskService = new RepoTaskService()
 const chartStore = useDetailChartStore()
 
-const mountedFn = () => {
-    // 获取仓库基本信息
-    repoTaskService.getRepositoryInfo(repo.path).then ((res: Repository) => {
-        repoInfo.value = res
-        curBranch.value = res.curBranch
-        getRepoStatData()
-    }, error => {
-        // 出现错误拦截
-        console.log('连接超时', error)
-        router.push(`/error/common/${encode(i18n.t('errorTitle.networkError'))}/${encode(i18n.t('errorContent.canNotLinkToRemote', {repoName: repo.name}))}`)
-        loading.value = false
-        // 中断promise链:
-        return new Promise(() => {})
-    })
-}
 onMounted(() => {
-    mountedFn()
+    getRepoStatData(repo.curBranch)
 })
 /**
  * 获取仓库当前分支统计信息信息
  */
-const getRepoStatData = () => {
+const getRepoStatData = (branch: string) => {
     loading.value = true
+    curBranch.value = branch
     // 获取日志
-    repoTaskService.getTags(repo.path)
-    .then(res => {
-        tags.value = res
-        // 获取仓库贡献排名
-        return repoTaskService.getContributorsRank(repo.path, curBranch.value!.name)
-    }).then((res) => {
-        contributorsRankList.value?.splice(0, contributorsRankList.value.length)
+    repoTaskService.getBranchContributorsRank(repo.path, branch)
+    .then((res) => {
         contributorsRankList.value = res
         // 获取仓库统计信息
-        return repoTaskService.getContributeStat(repoInfo.value!.path, curBranch.value!.name)
+        return repoTaskService.getContributeStat(repo.path, branch)
     }).then(res => {
         chartStore.start = res.totalStat.dateList[0]
         chartStore.end = _.last(res.totalStat.dateList) || res.totalStat.dateList[0]
@@ -110,7 +91,6 @@ watch(
         repoTaskService.interrupt()
         if (newRoute.startsWith('/repos/detail/')){
             repo = repoStore.getRepoByPath(path.value) as RepoItem
-            mountedFn()
         }
     }
 );

@@ -49,8 +49,7 @@ import { useRoute } from 'vue-router';
 import { useRepoStore } from '@/renderer/store/modules/repository';
 import { ref, onMounted, computed } from 'vue';
 import CommitDetailItem from "@/renderer/components/commitGraph/commitDetailItem.vue";
-import { CommitDetail } from '@/renderer/types';
-import { Branches, CommitFileInfo, CommitLogFields } from '@/types';
+import { Branches, CommitLogFields } from '@/types';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'

@@ -11,6 +11,9 @@ export class ExplorerTaskService extends IpcRendererBasicTaskService{
     }): Promise<string[]>{
         return this.invoke(window.explorerAPI.showOpenDialog, params)
     }
+    isPathExist(path: string) {
+        return this.invoke(window.explorerAPI.isPathExist, path)
+    }
     extractIcon (ext: string){
         return this.invoke(window.explorerAPI.extractIcon, ext)
     }

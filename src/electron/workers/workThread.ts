@@ -42,7 +42,7 @@ export class WorkerThreadPoolMap {
         this.poolMap.set(workerName, new WorkPool(workerPath, cpus))
     }
 
-    run(workerName: string, data: any) {
+    run(workerName: string, data: any): Promise<any> {
         const pool = this.poolMap.get(workerName)
         if (!pool) {
             throw new Error(`threadName:${workerName} is not exist!`)

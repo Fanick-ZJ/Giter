@@ -64,6 +64,7 @@ import { decode, encode } from '@/renderer/common/util/tools'
 import repoInfoEditDialog from '../dialog/repoInfoEditDialog/index'
 import { RepoService } from '@/electron/service/entity/repoService'
 import { Remote } from 'lib/git'
+import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskService'
     const i18n = useI18n()
     const openWithStore = useOpenWith()
     const {repos} = defineProps<{
@@ -104,6 +105,7 @@ import { Remote } from 'lib/git'
     // 获取记录中的仓库对象
     const repoStore = useRepoStore()
     const repoTaskService = new RepoTaskService()
+    const explorerTaskService = new ExplorerTaskService()
     // 鼠标移入后提示栏要出现的位置
     const tipMessagePos = reactive(new TwoDimensionPos(0, 0))
     // 鼠标移入指示灯提示
@@ -115,15 +117,6 @@ import { Remote } from 'lib/git'
     // 远程仓库图标
     const remoteSiteInfo = ref<Remote[]>([])
     const siteIcons = ref<string[]> ([])
-    repos.isExist && repoTaskService.getRemote(repos.path).then(res => {
-        remoteSiteInfo.value = [...res]
-        remoteSiteInfo.value.forEach(item => {
-            if ("fetch" in item.operate) {
-                let icon = getRemoteSiteIcon(item.url)
-                icon && siteIcons.value.push(icon)
-            }
-        })
-    })
     onMounted(async () => {
         status_light.value?.addEventListener('mouseenter', e => {
             // 设置提示窗位置
@@ -141,11 +134,28 @@ import { Remote } from 'lib/git'
                 clearTimeout(status_light_timer)
                 statues_bar_show.value = false
         })
+        
+        await repoTaskService.isLocalRepoExist(repos.path).then(res => {
+            repos.isExist = res
+        })
+
         if (repos.isExist && repos.watchable){
             // 检查仓库文件提交状态
             repoTaskService.checkRepoStatus(repos)
             
         }
+        repos.isExist && repoTaskService.getRemote(repos.path).then(res => {
+            remoteSiteInfo.value = [...res]
+            remoteSiteInfo.value.forEach(item => {
+                if ("fetch" in item.operate) {
+                    let icon = getRemoteSiteIcon(item.url)
+                    icon && siteIcons.value.push(icon)
+                }
+            })
+        })
+        repoTaskService.getCurrentBranch(repos.path).then(res => {
+            repos.curBranch = res
+        })
     })
     // 当前元素是否被选中
     const router = useRouter()

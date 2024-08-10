@@ -11,6 +11,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { MouseMenuDirective } from './components/common/contextMenu'
 import { EditorDirective } from './components/common/editor'
 import { apiMap } from './common/util/apiUtil'
+import { RepoTaskService } from './common/entity/repoTaskService'
 
 // 给windows中挂在的函数都添加上name属性，方便调试
 if (process.env.NODE_ENV === 'development') {
@@ -37,5 +38,5 @@ app.use(pinia)
 app.use(autoAnimatePlugin)
 app.directive('contextMenu', MouseMenuDirective)
 app.directive('editor', EditorDirective)
-app.mount('#app')
 
+app.mount('#app')

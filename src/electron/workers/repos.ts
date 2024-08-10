@@ -9,7 +9,7 @@ import { CommitFileInfo, CommitLogFields, WorkTask } from "@/types"
 import { parentPort  } from 'worker_threads'
 import { logger } from "@/electron/logger/init"
 import { isPathExist } from "../common/utils/fileUtil"
-import { getAllAuthors, getBranchAuthors, getBranchCreateInfo, getBranches, getCommitLogFormat, getContributeStat, getCurrentBranch, getFileByHash, getFilesDiffContext, getRepoFileList, getRepositoryInfoFull, getStatus, isGitRepository } from "lib/git"
+import { getAllAuthors, getBranchAuthors, getBranchCommitCount, getBranchCreateInfo, getBranches, getCommitLogFormat, getContributeStat, getCurrentBranch, getFileByHash, getFilesDiffContext, getRepoFileList, getRepositoryInfoFull, getStatus, isGitRepository } from "lib/git"
 
 interface PathAndBranch {
     path: string,
@@ -51,7 +51,7 @@ const _getRepositoryInfo = async (param: {path: string}) => {
 
 }
 const _getContributorsRank = async (param: PathAndBranch) => {
-    const rank = getAllAuthors(param.path)
+    const rank = getBranchAuthors(param.path, param.branch)
     parentPort?.postMessage(rank)
 
 }
@@ -125,13 +125,23 @@ const _getRepoStaus = (path: string) => {
     parentPort?.postMessage(res)
 }
 
+const _getCurrentBranch = (path: string) => {
+    const res = getCurrentBranch(path)
+    parentPort?.postMessage(res)
+}
+
+const _getBranchCommtiCount = (param: {path: string, branch: string}) => {
+    const res = getBranchCommitCount(param.path, param.branch)
+    parentPort?.postMessage(res)
+}
+
 
 const ACTION_MAP = new Map<string, (...args: any[]) => void>([
     ['getLog', _readCommitLog],
     ['getContributors', _getContributors],
     ['getBranchCreatorInfo', _getBranchCreator],
     ['getRepositoryInfo', _getRepositoryInfo],
-    ['getContributorsRank', _getContributorsRank],
+    ['getBranchContributorsRank', _getContributorsRank],
     ['getContributeStat', _getContributeStat],
     ['getRepoFileList', _getRepoFileList],
     ['getRepoBranch', _getRepoBranch],
@@ -139,11 +149,14 @@ const ACTION_MAP = new Map<string, (...args: any[]) => void>([
     ['isRepoExist', _isRepoExist],
     ['getCommitFileInfo', _getCommitFileInfo],
     ['getFileListByCommit', _getFileListByCommit],
-    ['getRepoStaus', _getRepoStaus]
+    ['getRepoStaus', _getRepoStaus],
+    ['getCurrentBranch', _getCurrentBranch],
+    ['getBranchCommtiCount', _getBranchCommtiCount]
 ])
 const message = (e: WorkTask<any>) => {
     // 根据名字来执行不同的任务
     if (ACTION_MAP.has(e.name)) {
+        logger.info(`${e.name} is running, ${e.params}`)
         ACTION_MAP.get(e.name)!(e.params)
     }else {
         logger.error(`${e.name} is not exist`)

@@ -27,7 +27,7 @@ export class RepoService extends IpcMainBasicService{
     async reposExist(event: IpcMainInvokeEvent, path: string | string[]) {
         if (Array.isArray(path)){
             // 如果有多条指令需要执行就放到线程里面
-            const worker = this.wtpInstance.run('repos', {name: 'isRepoExist', path})
+            const worker = this.wtpInstance.run('repos', {name: 'isRepoExist', params: path})
             return worker
         }else{
             const exist = isPathExist(path)
@@ -47,9 +47,11 @@ export class RepoService extends IpcMainBasicService{
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     isPushed(event: IpcMainInvokeEvent, path: string) {
-        const branch = getCurrentBranch(path)
-        const res = isPushed(path, branch)
-        return res
+        const branch = this.wtpInstance.run('repos', {name: 'getRepoCommitList', path})
+        return branch.then((res: string) => {
+            const is = isPushed(path, res)
+            return is
+        })
     }
 
     @IpcAction(IpcActionEnum.ipcMainHandle)
@@ -119,8 +121,8 @@ export class RepoService extends IpcMainBasicService{
     }
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
-    getContributorsRank(event: IpcMainInvokeEvent, params: {path: string, branch: string}) {
-        const worker = this.wtpInstance.run('repos', {name: 'getContributorsRank', params})
+    getBranchContributorsRank(event: IpcMainInvokeEvent, params: {path: string, branch: string}) {
+        const worker = this.wtpInstance.run('repos', {name: 'getBranchContributorsRank', params})
         return worker
     }
 
@@ -199,13 +201,15 @@ export class RepoService extends IpcMainBasicService{
     // 仓库相关的查询函数
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
-    getAllRepos(event: IpcMainInvokeEvent) {
+    getAllRepos(event: IpcMainInvokeEvent, full: boolean = false) {
         return this.repoDB.getAllRepository().then(async (repos: RepoItem[]) => {
             for (let i = 0; i < repos.length; i++) {
                 const item = repos[i]
-                item.isExist = isPathExist(item.path) && isGitRepository(item.path)
-                if (item.isExist) {
-                    item.curBranch = getCurrentBranch(item.path)
+                if (full) {
+                    item.isExist = isPathExist(item.path) && isGitRepository(item.path)
+                    if (item.isExist) {
+                        item.curBranch = getCurrentBranch(item.path) 
+                    }
                 }
             }
             return repos
@@ -233,5 +237,21 @@ export class RepoService extends IpcMainBasicService{
         this.repoDB.updateRepository(repo)
         const mainWin = winManager.getMain()
         mainWin.webContents.send('repos::update-main-window-repo-info', repo)
+    }
+
+    @IpcAction(IpcActionEnum.ipcMainHandle) @Task
+    getCurrentBranch(event: IpcMainInvokeEvent, path: string) {
+        logger.info(`getCurrentBranch => ${path}`)
+        return this.wtpInstance.run('repos', {name: 'getCurrentBranch', params: path})
+    }
+
+    @IpcAction(IpcActionEnum.ipcMainHandle) @Task
+    isLocalRepoExist (event: IpcMainInvokeEvent, path: string) {
+        return isPathExist(path) && isGitRepository(path)
+    }
+
+    @IpcAction(IpcActionEnum.ipcMainHandle) @Task
+    getBranchCommtiCount(event: IpcMainInvokeEvent, params: {path: string, branch: string}) {
+        return this.wtpInstance.run('repos', {name: 'getBranchCommtiCount', params})
     }
 }

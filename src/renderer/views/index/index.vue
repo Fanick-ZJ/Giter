@@ -30,7 +30,6 @@ repoStore.renderAddRepo() // 添加仓库新建事件
 repoStore.receiveUpdateRepoInfo() // 监控仓库信息更新
 repoStore.receiveSwitchRepoStatus() // 监控仓库状态
 repoTaskService.storeGetAllRepos()
-
 </script>
 
 
