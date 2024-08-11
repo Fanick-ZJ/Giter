@@ -1,25 +1,46 @@
 <template>
     <teleport :to="store.attachTo">
-        <div class="__open__with__wrapper" v-if="store.visible">
-            <div class="__open__with__content">
+        <div class="absolute size-full 
+                    flex justify-center 
+                    items-center 
+                    top-0 left-0 
+                    z-top bg-mask-color" 
+                    v-if="store.visible">
+            <div class="min-w-[200px] flex 
+                        flex-col max-w-[var(--open-with-content-max-width)]
+                        max-h-[var(--open-with-content-max-height)]
+                        w-[var(--open-with-content-width)]
+                        h-[var(--open-with-content-height)]
+                        bg-white rounded-md 
+                        overflow-hidden">
                 <!-- 打开方式头部 -->
-                <div class="__open__with__header">
-                    <div class="__open_with__headr-title">
+                <div class="h-[var(--open-with-header-height)]
+                            border-b-stone-300 border-b-[1px] border-solid
+                            p-[var(--open-with-padding)]
+                            flex justify-between">
+                    <div class="text-xl font-semibold 
+                                text-title-color">
                         <span>{{$t('openWith.title')}}</span>
                     </div>
-                    <div class="__open_with__headr-close" @click="close">
+                    <div class="text-xl font-semibold" @click="close">
                         <Icon icon="iconamoon:close" width="24" height="24"  style="color: #474747" />
                     </div>
                 </div>
                 <!-- 打开方式主体 -->
-                <div class="__open__with__body" ref="bodyRef">
+                <div class="flex  justify-center
+                            grow  overflow-hidden 
+                            px-1.5 p-1" ref="bodyRef">
                     <!-- 分页左箭头 -->
-                    <div class="__open_with_arrow" v-if="isMultPage" @click="prePage">
-                        <Icon icon="ic:round-arrow-left"
-                            width="20" height="20" />
+                    <div class="w-5 flex-shrink-0
+                                flex flex-col
+                                justify-center self-center" 
+                        v-if="isMultPage" @click="prePage">
+                        <Icon icon="ic:round-arrow-left" width="20" height="20" />
                     </div>
-                    <div class="__open_with_body-content">
-                        <div class="__open_with_icon_page" v-auto-animate>
+                    <div class="grow-1 flex 
+                                flex-col justify-between">
+                        <div class="flex flex-wrap
+                                    justify-center" v-auto-animate>
                             <div
                                 v-for="item in store.appList.slice(activeIndex * pageLineNum * curLineContent, (activeIndex + 1) * pageLineNum * curLineContent)">
                                 <!-- @vue-ignore -->
@@ -29,7 +50,7 @@
                                 ></AppItem>
                             </div>
                             <!-- 第一页不满或最后一页显示添加 -->
-                            <div class="__open__with-add"
+                            <div
                                 v-if="pageLineNum * curLineContent > store.appList.length
                                     || pageNum - 1 == activeIndex">
                                     <!-- @vue-ignore -->
@@ -44,16 +65,22 @@
                         </div>
                     </div>
                     <!-- 分页右箭头 -->
-                    <div class="__open_with_arrow"  v-if="isMultPage" @click="nextPage">
+                    <div class="w-5 flex-shrink-0
+                                flex flex-col
+                                justify-center self-center" 
+                        v-if="isMultPage" @click="nextPage">
                         <Icon icon="ic:round-arrow-right" width="20" height="20" />
                     </div>
                 </div>
-                <div class="__open_with_carousel" v-if="isMultPage">
-                    <ul class="__open_with_carousel-list">
+                <div class="flex items-center
+                            h-5 justify-center" v-if="isMultPage">
+                    <ul class="flex gap-3">
                         <li v-for="index in pageNum"
                             @click="toPage(index)"
-                            class="__open_with_carousel-item" 
-                            :class="{'__open_with_carousel-item--active'
+                            class="w-3 h-3
+                                  bg-[var(--open-with-carousel-item-background)] rounded-full
+                                  hover:bg-[var(--open-with-carousel-item-hover-background)] transition-all"
+                            :class="{'bg-[var(--open-with-carousel-item-active-background)]'
                             :index - 1 === activeIndex}"
                             >
                         </li>
@@ -249,11 +276,6 @@ import { OpenWithTaskService } from '@/renderer/common/entity/openWithTaskServic
 
 <style lang="scss" scoped>
 *{
-    font-family: $font;
-}
-.__open__with__wrapper{
-    --open-with-wrapper-background: rgba(188, 187, 187, 0.71);
-    --open-with-wrapper-position: rgba(188, 187, 187, 0.71);
     --open-with-content-max-width: 600px;
     --open-with-content-max-height: 350px;
     --open-with-content-width: 40%;
@@ -265,103 +287,8 @@ import { OpenWithTaskService } from '@/renderer/common/entity/openWithTaskServic
     --open-with-header-border-bottom: #e2e2e2 1px solid;
     --open-with-padding: 10px 15px;
     --open-with-header-title-color: #474747;
-}
-.__open__with__wrapper{
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: var(--open-with-wrapper-background);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    top: 0px;
-    left: 0px;
-    z-index: 9999;
-}
-
-.__open__with__content{
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    max-width: var(--open-with-content-max-width);
-    max-height: var(--open-with-content-max-height);
-    width: var(--open-with-content-width);
-    height: var(--open-with-content-height);
-    background-color: var(--open-with-content-background);
-    border-radius: var(--open-with-content-border-radius);
-    box-shadow: var(--open-with-content-box-shadow);
-}
-.__open__with__header{
-    height: var(--open-with-header-height);
-    border-bottom: var(--open-with-header-border-bottom);
-    padding: var(--open-with-padding);
-    display: flex;
-    flex: 0 0 auto;
-    justify-content: space-between;
-
-    .__open_with__headr-title{
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--open-with-header-title-color);
-    }
-    .__open_with__headr-close{
-        height: 20px;
-        width: 20px;
-    }
-}
-.__open_with_carousel-item{
     --open-with-carousel-item-background: #c0bfbfa6;
     --open-with-carousel-item-hover-background: #9e9b9ba6;
-}
-.__open_with_carousel-item--active{
-    --open-with-carousel-item-active-background: #696969a6;
-}
-.__open__with__body {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden;
-    padding: 5px 0px;
-    .__open_with_arrow{
-        width: 20px;
-        flex-shrink: 0;
-        display: flex;
-        justify-content: center;
-        align-self: center;
-        // background-color: #474747;
-    }
-    .__open_with_body-content{
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        .__open_with_icon_page{
-            display: flex;
-            flex-wrap: wrap; 
-            justify-content: center;
-        }
-    }
-}
-.__open_with_carousel{
-    display: flex;
-    align-items: center;
-    height: 20px;
-    justify-content: center;
-    .__open_with_carousel-list {
-        display: flex;
-        gap: 10px;
-        .__open_with_carousel-item{
-            width: 10px;
-            height: 10px;
-            background-color: var(--open-with-carousel-item-background);
-            border-radius: 50%;
-            transition: all 0.3s;
-            &:hover{
-                background-color: var(--open-with-carousel-item-hover-background);
-            }
-        }
-        .__open_with_carousel-item--active{
-            background-color: var(--open-with-carousel-item-active-background);
-        }
-    }
+    --open-with-carousel-item-active-background: #8b8b8ba6;
 }
 </style>

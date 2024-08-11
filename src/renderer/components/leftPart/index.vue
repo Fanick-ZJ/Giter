@@ -1,5 +1,8 @@
 <template>
-    <div class="leftBar" ref="leftBar">
+    <div class="bg-[#f0f3f6] h-screen
+                overflow-y-scroll overflow-x-hidden
+                min-w-[var(--left-bar-width)] flex
+                flex-col px-2 py-2" ref="leftBar">
         <template 
             v-for="item in respoStore.list"
             :key="item.path">
@@ -22,15 +25,4 @@ const respoStore = useRepoStore()
 </script>
 
 <style scoped lang="scss">
-.leftBar{
-    background-color: #f0f3f6;
-    height: 100vh;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    min-width: $left_bar_width;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 0px;
-}
 </style>

@@ -8,36 +8,55 @@
         :virtual-ref="titleRef"
         placement="right"
     >
+        <!-- 仓库项主体 -->
         <div @click="itemClick"
             v-context-menu="menuOption"
             :data-path="repos.path"
-            :class="[repos.isTop?'isTop':'', !isChosed?'no-chosed':'chosed']"
-            class="respoItem">
+            :class="[repos.isTop 
+                    ? 'bg-gradient-to-r from-gray-50 to-indigo-500'
+                    : '', 
+                    !isChosed
+                    ? 'text-gray-500 transition-all hover:bg-gray-300'
+                    : 'bg-red-500 text-white']"
+            class="mt-[5px] w-[var(--left-bar-width) - 20px]
+                   h-[var(--repo-item-height)] relative
+                   overflow-visible rounded-md">
+            <!-- 远程仓库图标 -->
             <remote-repo-site-icon-card
                 style="margin-right: 5px; flex: 0.2;"
                 v-if="siteIcons.length > 0"
                 :siteIcons="siteIcons"
                 :size="{width: 20, height: 20}"/>
-            <div :style="{flex: remoteSiteInfo.length > 0 ? 1 : 0.8}">
-                <div
-                    ref="titleRef"
-                    class="title"
-                >{{ repos.name }}</div>
-                <div class="delete_line" v-if="!repos.isExist"></div>
-                <div 
-                    ref="status_light"
-                    class="status-light"
-                    :class="repos.status == RepoStatus.UNCOMMIT?'unCommit'
-                            :repos.status == RepoStatus.UNPUSH? 'unPush'
-                            :'normal'">
-                </div>
-                <status-message-box
-                    ref="status_message_box"
-                    :repo="repos"
-                    :pos="tipMessagePos"
-                    :showing="statues_bar_show">
-                </status-message-box>
+            <!-- 仓库名称 -->
+            <div
+                ref="titleRef"
+                class="text-base font-bold
+                       leading-[var(--repo-item-height)] px-3
+                       max-w-[var(--repo-bar-item-title-width)] truncate">
+                {{ repos.name }}
             </div>
+            <!-- 删除线 -->
+            <div class="w-[90%] h-[2px]
+                        absolute rounded-full
+                        bg-rose-600 top-[calc(var(--repo-item-height)/2)]
+                        left-[5px]" v-if="!repos.isExist"></div>
+            <!-- 仓库状态灯 -->
+            <div 
+                ref="status_light"
+                class="w-[10px] h-[10px] 
+                       rounded-full absolute 
+                       right-5 top-[calc(var(--repo-item-height)/2-5px)]
+                       transition-all"
+                :class="repos.status == RepoStatus.UNCOMMIT?'bg-yellow-300'
+                        :repos.status == RepoStatus.UNPUSH? 'bg-rose-400'
+                        :'normal'">
+            </div>
+            <status-message-box
+                ref="status_message_box"
+                :repo="repos"
+                :pos="tipMessagePos"
+                :showing="statues_bar_show">
+            </status-message-box>
         </div>
     </el-tooltip>
 </template>
@@ -152,7 +171,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
                 }
             })
         })
-        repoTaskService.getCurrentBranch(repos.path).then(res => {
+        repos.isExist && repoTaskService.getCurrentBranch(repos.path).then(res => {
             repos.curBranch = res
         })
     })
@@ -218,7 +237,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
     }
     
     // 判断文本是否溢出
-    const titleRef = ref<HTMLElement>()
+    const titleRef = ref()
     const isOverFlow = () => {
         if (titleRef.value){
             return titleRef.value?.scrollWidth > titleRef.value?.clientWidth
@@ -229,95 +248,32 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
 </script>
 
 <style scoped lang="scss">
-
-    // 左侧仓库元素的高度
-    $repo_item_height: 30px;
-    .delete_line{
-        width: 90%;
-        height: 2px;
-        position: absolute;
-        border-radius: 5px;
-        background-color: rgb(247, 137, 26);
-        top: calc($repo_item_height / 2);
-        left: 5%;
-    }
-    .respoItem{
-        margin-top: 5px;
-        width: calc($left_bar_width - 20px);
-        height: $repo_item_height; 
-        position: relative;
-        overflow: visible;
-        user-select:none;
-        display: flex;
-        border-radius: 5px;
-    }
-    .isTop {
-        background-color: $respoItemTopColor;
-    }
-    .title{
-        font-size: medium;
-        font-weight: 600;
-        line-height: $repo_item_height;
-        padding: 0 10px;
-        font-family: $font;
-        text-overflow: ellipsis;
-        text-wrap: nowrap;
-        max-width: $respoBarItemTitleWidth;
-        overflow: hidden;
+    * {
+        --repo-item-height: 30px;
+        --repo-bar-item-title-width: calc(var(--left-bar-width) - 20px);
     }
     // 标题溢出之后鼠标移上去的提示
-    .title-tip{
-        position: relative;
-    }
-    .title-tip::after{
-        content: attr(data-title);
-        pointer-events: none;   // 取消鼠标事件
-        padding: 5px 5px;
-        font-size: 15px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #BDBDBD;
-        color: white;
-        position: fixed;
-        line-height:18px;
-        font-family: $font;
-        opacity: 0;
-        white-space: pre-wrap;
-        transition: all .2s 0.5s;
-        z-index: 9999;
-    }
-    .title-tip:hover::after{
-        opacity: 1;
-    }
-    .no-chosed{
-        color: #737b89;
-        transition: all 0.2s ease 0s;
-    }
-    .chosed {
-        background-color:#f44343;
-        transition: all 0.2s ease 0s;
-        color: white;
-    }
-    .no-chosed:hover{
-        transition: all 0.2s ease 0s;
-        background-color:#e4e8ec;
-    }
-    .status-light{
-        width: 10px;
-        height: 10px;
-        margin-left: 5px;
-        border-radius: 10px;
-        position: absolute;
-        right: 5px;
-        top:calc($repo_item_height/2 - 5px);
-        transition: all 0.2s ease 0s;
-    }
-    .unCommit {
-        background-color: #ffca3a;
-        transition: all 0.2s ease 0s;
-    }
-    .unPush {
-        background-color: #FFA07A;
-        transition: all 0.2s ease 0s;
-    }
+    // .title-tip{
+    //     position: relative;
+    // }
+    // .title-tip::after{
+    //     content: attr(data-title);
+    //     pointer-events: none;   // 取消鼠标事件
+    //     padding: 5px 5px;
+    //     font-size: 15px;
+    //     border: 1px solid #ddd;
+    //     border-radius: 5px;
+    //     background-color: #BDBDBD;
+    //     color: white;
+    //     position: fixed;
+    //     line-height:18px;
+    //     font-family: $font;
+    //     opacity: 0;
+    //     white-space: pre-wrap;
+    //     transition: all .2s 0.5s;
+    //     z-index: 9999;
+    // }
+    // .title-tip:hover::after{
+    //     opacity: 1;
+    // }
 </style>

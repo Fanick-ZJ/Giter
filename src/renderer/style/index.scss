@@ -1,5 +1,8 @@
 // 引入清除默认样式
 @import './reset.scss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 body{
     overflow: hidden;
 }

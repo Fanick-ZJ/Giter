@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="size-full flex relative overflow-hidden">
       <OpenWith/>
       <LeftPart/>
       <RightPart/>
@@ -34,11 +34,4 @@ repoTaskService.storeGetAllRepos()  // 获取仓库列表
 
 
 <style scoped lang="scss">
-.container{
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  position: relative;
-  overflow: hidden;
-}
 </style>

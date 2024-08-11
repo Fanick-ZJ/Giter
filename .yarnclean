@@ -5,8 +5,8 @@ tests
 powered-test
 
 # asset directories
-docs
-doc
+<!-- docs
+doc -->
 website
 images
 assets

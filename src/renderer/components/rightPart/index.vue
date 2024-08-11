@@ -77,7 +77,7 @@ const forward = () => {
   flex: 1 1 auto;
   height: 100vh;
   display: flex;
-  width: calc(100vw - $left_bar_width);
+  width: calc(100vw - var(--left-bar-width));
   background-color: $right_part_background;
   flex-direction: column;
 
