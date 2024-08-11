@@ -18,7 +18,7 @@
                     !isChosed
                     ? 'text-gray-500 transition-all hover:bg-gray-300'
                     : 'bg-red-500 text-white']"
-            class="mt-[5px] w-[var(--left-bar-width) - 20px]
+            class="mt-[5px]
                    h-[var(--repo-item-height)] relative
                    overflow-visible rounded-md">
             <!-- 远程仓库图标 -->
@@ -38,8 +38,9 @@
             <!-- 删除线 -->
             <div class="w-[90%] h-[2px]
                         absolute rounded-full
-                        bg-rose-600 top-[calc(var(--repo-item-height)/2)]
-                        left-[5px]" v-if="!repos.isExist"></div>
+                        bg-rose-600 opacity-50
+                        left-[5px] top-[calc(var(--repo-item-height)/2)]" 
+                        v-if="!repos.isExist"></div>
             <!-- 仓库状态灯 -->
             <div 
                 ref="status_light"
@@ -250,7 +251,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
 <style scoped lang="scss">
     * {
         --repo-item-height: 30px;
-        --repo-bar-item-title-width: calc(var(--left-bar-width) - 20px);
+        --repo-bar-item-title-width: calc(100% - 20px);
     }
     // 标题溢出之后鼠标移上去的提示
     // .title-tip{

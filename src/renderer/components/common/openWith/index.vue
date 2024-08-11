@@ -92,8 +92,7 @@
 </template>
 
 <script setup lang='ts'>
-import { add, get, getStoreObject, put } from '@/renderer/common/util/dbUtil';
-import { gsap } from 'gsap'
+import { get, getStoreObject} from '@/renderer/common/util/dbUtil';
 import { Icon } from '@iconify/vue';
 import { ref, reactive, watch, onBeforeMount, onMounted, onUnmounted } from 'vue';
 import AppItem from './appItem.vue'

@@ -1,8 +1,10 @@
 <template>
     <div class="bg-[#f0f3f6] h-screen
                 overflow-y-scroll overflow-x-hidden
-                min-w-[var(--left-bar-width)] flex
-                flex-col px-2 py-2" ref="leftBar">
+                 flex
+                flex-col px-2 py-2" 
+        :style="{width: width+'px'}"
+        ref="leftBar">
         <template 
             v-for="item in respoStore.list"
             :key="item.path">
@@ -20,7 +22,13 @@ import {useRepoStore} from '@/renderer/store/modules/repository'
 const leftBar = ref<HTMLElement>()
 // 获取记录中的仓库对象
 const respoStore = useRepoStore()
-
+defineProps({
+    width: {
+        type: Number,
+        required: false,
+        default: 200
+    },
+})
     
 </script>
 

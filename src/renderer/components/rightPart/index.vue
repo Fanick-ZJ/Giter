@@ -1,5 +1,5 @@
 <template>
-  <div class="right-body">
+  <div class="right-body" :style="width ? {width: width+'px'} : {flex: '1 1 auto'}">
     <div class="nav-bar">
       <div class="page-title" v-if="pageName"> {{ pageName }}</div>
       <div class="router-arrow">
@@ -38,6 +38,13 @@ import { onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
  * 完整代码片段如下
  */
 
+defineProps({
+    width: {
+        type: Number,
+        required: false,
+    },
+})
+
 
 const route = useRoute()
 const router = useRouter()
@@ -74,7 +81,7 @@ const forward = () => {
 <style lang="scss" scoped>
   $__nav-bra_height: 30px;
 .right-body{
-  flex: 1 1 auto;
+  // flex: 1 1 auto;
   height: 100vh;
   display: flex;
   width: calc(100vw - var(--left-bar-width));
