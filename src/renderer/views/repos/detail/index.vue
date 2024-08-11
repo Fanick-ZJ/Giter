@@ -1,36 +1,38 @@
 <template>
-    <div class="detail-container" v-loading="loading">
-        <div class="head">
-            <!-- 当绑定的值位对象时，要使用value-key来指定key -->
-            <el-col :span="8" class="select-box">
-                <branch-select-bar :repo-info="repo"ize="small" @change="getRepoStatData"/>
-            </el-col>
+    <loading-page :loading="loading">
+        <div class="detail-container">
+            <div class="head">
+                <!-- 当绑定的值位对象时，要使用value-key来指定key -->
+                <el-col :span="8" class="select-box">
+                    <branch-select-bar :repo-info="repo"ize="small" @change="getRepoStatData"/>
+                </el-col>
+            </div>
+            <InfoBar :path="path" :branch="repo.curBranch"></InfoBar>
+            <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
+            <ContributeMaseterChart></ContributeMaseterChart>
+            <div class="author-charts">
+                <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="item.author.email"></authorContributeChart>
+            </div>
         </div>
-        <InfoBar :path="path" :branch="repo.curBranch"></InfoBar>
-        <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
-        <ContributeMaseterChart></ContributeMaseterChart>
-        <div class="author-charts">
-            <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="item.author.email"></authorContributeChart>
-        </div>
-    </div>
+    </loading-page>
 </template>
 
 <script setup lang="ts">
 import { useRepoStore } from '@/renderer/store/modules/repository';
 import { useRoute, useRouter } from 'vue-router';
-import {computed, onBeforeMount, onMounted, onUnmounted, ref, watch} from 'vue'
-import { RepoItem, Repository} from '@/types';
+import {computed, onBeforeMount, onMounted, ref, watch} from 'vue'
+import { RepoItem} from '@/types';
 import InfoBar from '@/renderer/components/detail/infoBar.vue'
 import AuthorWall from '@/renderer/components/detail/authorWall.vue'
 import ContributeMaseterChart  from '@/renderer/components/detail/contributeMasterChart.vue'
 import authorContributeChart from '@/renderer/components/detail/authorContributeChart.vue';
 import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
-import { useI18n } from 'vue-i18n';
 import { decode, encode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
 import _ from 'lodash';
 import { Author, Branch } from 'lib/git';
+import LoadingPage from '@/renderer/components/common/LoadingPage/index.vue';
 
 const route = useRoute()
 const router = useRouter()

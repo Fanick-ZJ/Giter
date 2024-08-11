@@ -23,7 +23,7 @@
                     ref="titleRef"
                     class="title"
                 >{{ repos.name }}</div>
-                <delete-line v-if="!repos.isExist"/>
+                <div class="delete_line" v-if="!repos.isExist"></div>
                 <div 
                     ref="status_light"
                     class="status-light"
@@ -52,7 +52,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { getFloatTipMessageBoxPos } from '@/renderer/common/util/posUtil'
 import { useIpcAction } from '@/renderer/store/modules/ipcAction'
 import { ElLoading, ElMessageBox  } from 'element-plus'
-import DeleteLine from './deleteLine.vue'
 import StatusMessageBox from './statusMessageBox.vue'
 import RemoteRepoSiteIconCard from './remoteRepoSiteIconCard.vue'
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService'
@@ -230,10 +229,22 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
 </script>
 
 <style scoped lang="scss">
+
+    // 左侧仓库元素的高度
+    $repo_item_height: 30px;
+    .delete_line{
+        width: 90%;
+        height: 2px;
+        position: absolute;
+        border-radius: 5px;
+        background-color: rgb(247, 137, 26);
+        top: calc($repo_item_height / 2);
+        left: 5%;
+    }
     .respoItem{
         margin-top: 5px;
-        width: calc($respoBarWidth - 20px);
-        height: $respoItemHeight;
+        width: calc($left_bar_width - 20px);
+        height: $repo_item_height; 
         position: relative;
         overflow: visible;
         user-select:none;
@@ -246,7 +257,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
     .title{
         font-size: medium;
         font-weight: 600;
-        line-height: $respoItemHeight;
+        line-height: $repo_item_height;
         padding: 0 10px;
         font-family: $font;
         text-overflow: ellipsis;
@@ -298,7 +309,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
         border-radius: 10px;
         position: absolute;
         right: 5px;
-        top:calc($respoItemHeight/2 - 5px);
+        top:calc($repo_item_height/2 - 5px);
         transition: all 0.2s ease 0s;
     }
     .unCommit {

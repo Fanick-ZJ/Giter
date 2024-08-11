@@ -27,7 +27,7 @@ const respoStore = useRepoStore()
     height: 100vh;
     overflow-y: scroll;
     overflow-x: hidden;
-    min-width: $respoBarWidth;
+    min-width: $left_bar_width;
     display: flex;
     flex-direction: column;
     align-items: center;

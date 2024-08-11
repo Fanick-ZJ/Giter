@@ -1,15 +1,13 @@
 // 提供全局的scss变量
 
-// 左侧仓库元素的高度
-$respoItemHeight: 30px;
 
 // 左侧仓库部分的宽度
-$respoBarWidth: 200px;
+$left_bar_width: 200px;
 
 $respoItemTopColor: #cbcbcb;
 
 // 左侧仓库部分文字的宽度
-$respoBarItemTitleWidth: calc($respoBarWidth - 40px);
+$respoBarItemTitleWidth: calc($left_bar_width - 40px);
 
 // 全局文字
 $font: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Heiti SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;

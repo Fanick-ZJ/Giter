@@ -29,13 +29,13 @@ const repoStore = useRepoStore()
 repoStore.renderAddRepo() // 添加仓库新建事件
 repoStore.receiveUpdateRepoInfo() // 监控仓库信息更新
 repoStore.receiveSwitchRepoStatus() // 监控仓库状态
-repoTaskService.storeGetAllRepos()
+repoTaskService.storeGetAllRepos()  // 获取仓库列表
 </script>
 
 
 <style scoped lang="scss">
 .container{
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   display: flex;
   position: relative;

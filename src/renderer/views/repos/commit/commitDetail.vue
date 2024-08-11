@@ -1,49 +1,49 @@
 <template>
-    <div id="__commit_detail_container"
-        ref="commitDetailContainer"
-        v-loading="loading">
-        <div class="__commit_detail_tabbar">
-            <div class="__commit_detail_tabbar_title">
-                {{ commitFileDetail.title }}
-            </div>
-            <div class="__commit_detail_tabbar_contain-branch">
-                <div class="__commit_detail_tabbar_contain-branch_title">
-                    {{ $t('commitGraph.affected_branch') }}:
+    <loading-page :loading="loading">
+        <div id="__commit_detail_container">
+            <div class="__commit_detail_tabbar">
+                <div class="__commit_detail_tabbar_title">
+                    {{ commitFileDetail.title }}
                 </div>
-                <el-tag v-for="(branch, index) in containBranch" :key="index">
-                    {{ branch }}
-                </el-tag>
+                <div class="__commit_detail_tabbar_contain-branch">
+                    <div class="__commit_detail_tabbar_contain-branch_title">
+                        {{ $t('commitGraph.affected_branch') }}:
+                    </div>
+                    <el-tag v-for="(branch, index) in containBranch" :key="index">
+                        {{ branch }}
+                    </el-tag>
+                </div>
+            </div>
+            <div class="__commit_detail_content">
+                <div class="__commit_detail_file-block" 
+                    v-for="(file, index) in commitFileDetail.diff">
+                    <div class="__commit_detail_file-tabbar">
+                        <div class="__commit_detail_additions">+{{ file.changeStat.addition }}</div>
+                        <div class="__commit_detail_deletions">-{{ file.changeStat.deletion }}</div>
+                        <div class="__commit_detail_file-name">{{ file.filePath }}</div>
+                    </div>
+                    <div class="__commit_detail_file-content"
+                        :id="editorClassPrefix + index"
+                        :style="{ height:  getMaxLength(file)* 20 + 'px' }">
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="__commit_detail_content">
-            <div class="__commit_detail_file-block" 
-                v-for="(file, index) in commitFileDetail.diff">
-                <div class="__commit_detail_file-tabbar">
-                    <div class="__commit_detail_additions">+{{ file.changeStat.addition }}</div>
-                    <div class="__commit_detail_deletions">-{{ file.changeStat.deletion }}</div>
-                    <div class="__commit_detail_file-name">{{ file.filePath }}</div>
-                </div>
-                <div class="__commit_detail_file-content"
-                    :id="editorClassPrefix + index"
-                    :style="{ height:  getMaxLength(file)* 20 + 'px' }">
-                </div>
-            </div>
-        </div>
-    </div>
+    </loading-page>
 </template>
 
 <script setup lang="ts">
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
-import { onMounted, Ref, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { nextTick, onMounted, Ref, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import * as monaco from 'monaco-editor';
 import { getFileType } from '@/renderer/common/util/file';
 import { CommitFileInfo } from '@/types';
 import { FileDiffContext } from 'lib/git';
+import LoadingPage from '@/renderer/components/common/LoadingPage/index.vue';
 
 const route = useRoute();
-const router = useRouter();
 const editorClassPrefix = '__commit_detail_editor_'
 const loading = ref(true)
 const commitFileDetail: Ref<CommitFileInfo> = ref({
@@ -63,16 +63,21 @@ onMounted(() => {
     allPromise.then(res => {
         commitFileDetail.value = res[0]
         containBranch.value = res[1]
-    }).then(() => {
-        commitFileDetail.value.diff.forEach((file, index) => {
-            createEditor(index, file)
-        })
         loading.value = false
     })
 })
 
+watch(loading, (newValue, oldValue) => {
+    if (newValue && !oldValue) {
+        return
+    }
+    commitFileDetail.value.diff.forEach(async (file, index) => {
+        await nextTick()
+        createEditor(index, file)
+    })
+})
 const createEditor = (index: number, file: FileDiffContext) => {
-    const   editorContainer = document.getElementById(editorClassPrefix + index)
+    const editorContainer = document.getElementById(editorClassPrefix + index)
     const editor = monaco.editor.createDiffEditor(editorContainer!, {
         lineHeight: 20,
         scrollBeyondLastLine: false, // 设置编辑器是否可以滚动到最后一行之后
@@ -115,7 +120,8 @@ const getModifiedText = (content: string[], type: string='plaintext') => {
 }
 
 const getMaxLength = (file: FileDiffContext) => {
-    return Math.max(file.context1.split('\n').length, file.context2.split('\n').length)
+    console.log(Math.max(file.context1.trim().split('\n').length, file.context2.trim().split('\n').length))
+    return Math.max(file.context1.trim().split('\n').length, file.context2.trim().split('\n').length)
 }
 </script>
 

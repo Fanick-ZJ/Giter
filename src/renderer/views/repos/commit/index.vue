@@ -1,47 +1,50 @@
 <template>
-    <div class="grap-container" v-loading="loading">
-        <el-row class="top-bar" justify="space-between">
-            <el-col :span="10" class="select-box">
-                <el-text class="select-label" size="default">{{ $t('commitGraph.current_branch') }}</el-text>
-                <branch-select-bar
-                 :repo-info="respoItem" 
-                 size="small"
-                @change="branchChange"
-                style="width: 200px"/>
-            </el-col>
-            <el-col :span="4" class="filter-box" data-size-small>
-                <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.filter') }} </el-text>
-                <el-popover placement="bottom" :width="400" :visible="filterVisible">
-                <template #reference>
-                    <el-text size="large" @click="() => filterVisible= true">⬇️ </el-text>
+    <loading-page :loading="loading">
+        <div class="grap-container">
+            <el-row class="top-bar" justify="space-between">
+                <el-col :span="10" class="select-box">
+                    <el-text class="select-label" size="default">{{ $t('commitGraph.current_branch') }}</el-text>
+                    <branch-select-bar
+                    :repo-info="respoItem" 
+                    size="small"
+                    @change="branchChange"
+                    style="width: 200px"/>
+                </el-col>
+                <el-col :span="4" class="filter-box" data-size-small>
+                    <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.filter') }} </el-text>
+                    <el-popover placement="bottom" :width="400" :visible="filterVisible">
+                    <template #reference>
+                        <el-text size="large" @click="() => filterVisible= true">⬇️ </el-text>
+                    </template>
+                    <div>
+                        <commit-filter 
+                            @filter-result="filterResult"
+                            :contributors="contributorsList"></commit-filter>
+                    </div>
+                    </el-popover>
+                </el-col>
+            </el-row>
+            <el-row v-auto-animate class="commit-container">
+                <template v-for="item in filteredCommitList.slice((currentPage - 1) * pageSize, (currentPage) * pageSize)" :key="item.hash">
+                    <commit-detail-item :detail="item" :repo="respoItem!"/>
                 </template>
-                <div>
-                    <commit-filter 
-                        @filter-result="filterResult"
-                        :contributors="contributorsList"></commit-filter>
-                </div>
-                </el-popover>
-            </el-col>
-        </el-row>
-        <el-row v-auto-animate class="commit-container">
-            <template v-for="item in filteredCommitList.slice((currentPage - 1) * pageSize, (currentPage) * pageSize)" :key="item.hash">
-                <commit-detail-item :detail="item" :repo="respoItem!"/>
-            </template>
-        </el-row>
-        <el-row class="pagination">
-            <el-pagination
-                v-model:current-page="currentPage"
-                v-model:page-size="pageSize"
-                :page-sizes="[10, 20, 30, 40]"
-                :small="true"
-                :background="true"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="filteredCommitList.length"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-            />
-        </el-row>
-    </div>
+            </el-row>
+            <el-row class="pagination">
+                <el-pagination
+                    v-model:current-page="currentPage"
+                    v-model:page-size="pageSize"
+                    :page-sizes="[10, 20, 30, 40]"
+                    :small="true"
+                    :background="true"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="filteredCommitList.length"
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                />
+            </el-row>
+        </div>
+    </loading-page>
+    
 </template>
 
 <script setup lang="ts">
@@ -55,6 +58,7 @@ import { decode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
 import { onRouteChangeUpdate } from '@/renderer/common/hook/useRouter';
 import commitFilter from '@/renderer/components/commitGraph/commitFilter.vue'
+import LoadingPage from '@/renderer/components/common/LoadingPage/index.vue';
 
 defineOptions({ name: 'commitGraph' })
 const route = useRoute();
