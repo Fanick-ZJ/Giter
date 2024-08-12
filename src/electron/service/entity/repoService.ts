@@ -241,7 +241,6 @@ export class RepoService extends IpcMainBasicService{
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     getCurrentBranch(event: IpcMainInvokeEvent, path: string) {
-        logger.info(`getCurrentBranch => ${path}`)
         return this.wtpInstance.run('repos', {name: 'getCurrentBranch', params: path})
     }
 

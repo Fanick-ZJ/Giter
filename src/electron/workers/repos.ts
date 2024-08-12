@@ -57,7 +57,14 @@ const _getContributorsRank = async (param: PathAndBranch) => {
 
 }
 const _getContributeStat = async (param: PathAndBranch) => {
+    logger.info('=============================================')
+    const t1 = new Date()
+    logger.info(`start getContributeStat`)
     const res = getContributeStat(param.path, param.branch)
+    const t2 = new Date()
+    logger.info(`getContributeStat cost ${t2.getTime() - t1.getTime()}ms`)
+    logger.info(JSON.stringify(res))
+    logger.info('=============================================')
     parentPort?.postMessage(res)
 }
 
@@ -157,7 +164,10 @@ const ACTION_MAP = new Map<string, (...args: any[]) => void>([
 const message = (e: WorkTask<any>) => {
     // 根据名字来执行不同的任务
     if (ACTION_MAP.has(e.name)) {
+<<<<<<< HEAD
         logger.info(`${e.name} is running, ${JSON.stringify(e.params)}`)
+=======
+>>>>>>> b89ec438630081ac70007ab435b62757d05cb2f4
         ACTION_MAP.get(e.name)!(e.params)
     }else {
         logger.error(`${e.name} is not exist`)
