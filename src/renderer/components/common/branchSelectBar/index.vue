@@ -22,10 +22,6 @@ import { Icon } from '@iconify/vue';
 
 
 const props = defineProps({
-    repoInfo: {
-        type: Object as PropType<RepoItem | undefined>,
-        reqired: false
-    },
     repoPath: {
         type: String,
         reqired: false
@@ -59,15 +55,14 @@ const branches = ref<string[]>([])
 const curBranch = ref()
 const getBranches = async () => {
     branches.value = []
-    let _path = props.repoInfo ? props.repoInfo.path : props.repoPath
     if (props.branch) {
         branches.value.push(props.branch)
     }
-    else if (!_path) {
+    else if (!props.repoPath) {
         // console.error('path is not defined')
     }
     else {
-        await repoTaskService.getRepoBranch(_path).then((res: Branches) => {
+        await repoTaskService.getRepoBranch(props.repoPath).then((res: Branches) => {
             branches.value.push(...res.all)
             // 如果有传入的分支则使用此份之，没有就使用当前分支
             if (props.branch) {
@@ -80,10 +75,6 @@ const getBranches = async () => {
 }
 onMounted(() => {
     getBranches()
-})
-
-watch(() => props.repoInfo, async () => {
-    await getBranches()
 })
 
 watch(() => props.repoPath, async () => {

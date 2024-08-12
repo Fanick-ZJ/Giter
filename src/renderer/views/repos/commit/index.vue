@@ -5,7 +5,7 @@
                 <el-col :span="10" class="select-box">
                     <el-text class="select-label" size="default">{{ $t('commitGraph.current_branch') }}</el-text>
                     <branch-select-bar
-                    :repo-info="respoItem" 
+                    :repo-path="path" 
                     size="small"
                     @change="branchChange"
                     style="width: 200px"/>

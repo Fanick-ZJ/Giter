@@ -1,4 +1,4 @@
-import { BrowserWindow, Menu, app, contentTracing, session } from "electron"
+import { BrowserWindow, Menu, app, contentTracing, crashReporter, session } from "electron"
 import path from 'path'
 import { mainMenu } from "./menu/template"
 import { actionInit } from "./actionInit"
@@ -45,6 +45,11 @@ export default class Giter{
                     path.resolve(__dirname, '../../_devtools/vue_dev_tool_6.5.0_0')
                 )
             }
+            crashReporter.start({
+                compress: true,
+                productName: 'giter',
+                uploadToServer: false
+            })
         })
     }
 

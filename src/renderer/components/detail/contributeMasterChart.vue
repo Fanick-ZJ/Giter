@@ -17,8 +17,8 @@
             <span v-else-if="chartStore.curShowData == 'deletions'">{{ $t('chart.contributeMasterChartDeleteTitle') }}</span>
             <span v-else-if="chartStore.curShowData == 'insertions'">{{ $t('chart.contributeMasterChartInsertTitle') }}</span>
         </div>
-    </div>
-    <div class="chart" ref="masterChartDOM">
+        <div class="h-[400px] w-full" ref="masterChartDOM">
+        </div>
     </div>
 </template>
 
@@ -55,20 +55,25 @@ let masterChart: echarts.ECharts
 // 月份数据统计对象，在选择的时候自动计算并存进去
 const options = reactive<EChartsOption>({})
 // 界面挂在完成之后开始初始化表格
-onMounted(() => {
+onMounted(async () => {
     window.addEventListener('resize', () => {
         // 页面中存在多个表格的时候，使用resize要带上宽高
-        masterChart?.resize({height: 400})
+        if (masterChartDOM.value) {
+            console.log('masterChartDOM.value', masterChartDOM.value.getBoundingClientRect())
+            const width = masterChartDOM.value.offsetWidth;
+            masterChart?.resize({width, height: 400})
+        }
     })
     // 初始化表格对象
-    nextTick(() => {
+    await nextTick()
+    setTimeout(() => {
         if (masterChartDOM.value){
             masterChart = echarts.init(masterChartDOM.value, null, {renderer: 'svg'})
             flashChartData()
-            masterChart?.resize({height: 400})
+            const width = masterChartDOM.value.offsetWidth;
+            masterChart?.resize({width, height: 400})
         }
-    })
-
+    }, 500)
 })
 /**
  * 刷新数据
@@ -199,9 +204,5 @@ watch(() =>chartStore.commitCount, (newVal, oldVal) => {
         font-weight: 600;
         font-size: 30px;
     }
-}
-.chart{
-    height: 400px;
-    width: 100%;
 }
 </style>

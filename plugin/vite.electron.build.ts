@@ -49,6 +49,9 @@ export const ElectronBuildPlugin = (): Plugin => {
                         oneClick: false, // 取消一键安装
                         allowToChangeInstallationDirectory: true,   // 允许选择目录安装
                     },
+                    win: {
+                        requestedExecutionLevel: 'requireAdministrator'
+                    },
                     extraResources: getExtraResources()
                 }
             })

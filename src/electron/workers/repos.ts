@@ -42,6 +42,7 @@ const _getContributors = (param: PathAndBranch) => {
 
 const _getBranchCreator = (param: PathAndBranch) => {
     const { path, branch } = param
+    logger.info(`getBranchCreatorInfo is running, ${param.branch}, ${param.path}`)
     const contributors = getBranchCreateInfo(path, branch)
     parentPort?.postMessage(contributors)
 }
@@ -156,7 +157,7 @@ const ACTION_MAP = new Map<string, (...args: any[]) => void>([
 const message = (e: WorkTask<any>) => {
     // 根据名字来执行不同的任务
     if (ACTION_MAP.has(e.name)) {
-        logger.info(`${e.name} is running, ${e.params}`)
+        logger.info(`${e.name} is running, ${JSON.stringify(e.params)}`)
         ACTION_MAP.get(e.name)!(e.params)
     }else {
         logger.error(`${e.name} is not exist`)

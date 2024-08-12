@@ -4,14 +4,14 @@
             <div class="head">
                 <!-- 当绑定的值位对象时，要使用value-key来指定key -->
                 <el-col :span="8" class="select-box">
-                    <branch-select-bar :repo-info="repo"ize="small" @change="getRepoStatData"/>
+                    <branch-select-bar :repo-path="path" size="small" @change="getRepoStatData"/>
                 </el-col>
             </div>
             <InfoBar :path="path" :branch="repo.curBranch"></InfoBar>
-            <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
+            <AuthorWall :contributors-rank-list="contributorsRankList" :key="repo.curBranch + repo.path" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
             <ContributeMaseterChart></ContributeMaseterChart>
             <div class="author-charts">
-                <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="item.author.email"></authorContributeChart>
+                <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="curBranch + item.author.email"></authorContributeChart>
             </div>
         </div>
     </loading-page>
@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { useRepoStore } from '@/renderer/store/modules/repository';
 import { useRoute, useRouter } from 'vue-router';
-import {computed, onBeforeMount, onMounted, ref, watch} from 'vue'
+import {computed, nextTick, onBeforeMount, onMounted, ref, watch} from 'vue'
 import { RepoItem} from '@/types';
 import InfoBar from '@/renderer/components/detail/infoBar.vue'
 import AuthorWall from '@/renderer/components/detail/authorWall.vue'
@@ -54,7 +54,8 @@ const loading = ref<boolean>(true)
 const repoTaskService = new RepoTaskService()
 const chartStore = useDetailChartStore()
 
-onMounted(() => {
+onMounted(async () => {
+    await nextTick()
     getRepoStatData(repo.curBranch)
 })
 /**
