@@ -17,8 +17,8 @@
             <span v-else-if="chartStore.curShowData == 'deletions'">{{ $t('chart.contributeMasterChartDeleteTitle') }}</span>
             <span v-else-if="chartStore.curShowData == 'insertions'">{{ $t('chart.contributeMasterChartInsertTitle') }}</span>
         </div>
-    </div>
-    <div class="chart" ref="masterChartDOM">
+        <div class="w-full h-[400px]" ref="masterChartDOM">
+        </div>
     </div>
 </template>
 
@@ -65,7 +65,6 @@ onMounted(() => {
         if (masterChartDOM.value){
             masterChart = echarts.init(masterChartDOM.value, null, {renderer: 'svg'})
             flashChartData()
-            masterChart?.resize({height: 400})
         }
     })
 
@@ -199,9 +198,5 @@ watch(() =>chartStore.commitCount, (newVal, oldVal) => {
         font-weight: 600;
         font-size: 30px;
     }
-}
-.chart{
-    height: 400px;
-    width: 100%;
 }
 </style>

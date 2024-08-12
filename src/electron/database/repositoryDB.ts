@@ -54,7 +54,6 @@ export class RepositoryDB  extends BaseDB{
      */
     public updateRepository(repository: RepoItem, dbPath?: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            logger.info(`updateRepository ${repository} =====`)
             const update = this.db.prepare('update repository set name = ?, isExist = ?, avatar = ?, isTop = ?, isHidden = ?, watchable = ? where path = ?')
             const transaction = this.db.transaction((repository: RepoItem) => {
                 update.run(repository.name, _.toInteger(repository.isExist), repository.avatar, _.toInteger(repository.isTop), _.toInteger(repository.isHidden), _.toInteger(repository.watchable), repository.path)
