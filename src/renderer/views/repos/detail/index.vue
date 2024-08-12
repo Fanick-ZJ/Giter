@@ -47,6 +47,7 @@ onBeforeMount(async () => {
     }
 })
 
+console.log(repo.curBranch)
 const curBranch = ref<string>(repo.curBranch)     // 当前分支
 const commitCount = ref<number>(0)              // 当前分支提交次数
 const contributorsRankList = ref<Author[]>([])  // 当前分支贡献者列表
