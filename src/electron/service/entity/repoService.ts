@@ -67,7 +67,7 @@ export class RepoService extends IpcMainBasicService{
     }
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
-    getBrancheses(event: IpcMainInvokeEvent, path: string){
+    getBranches(event: IpcMainInvokeEvent, path: string){
         const res = getBranches(path)
         return res
     }
@@ -202,16 +202,18 @@ export class RepoService extends IpcMainBasicService{
 
     @IpcAction(IpcActionEnum.ipcMainHandle) @Task
     getAllRepos(event: IpcMainInvokeEvent, full: boolean = false) {
+        const t1 = new Date()
         return this.repoDB.getAllRepository().then(async (repos: RepoItem[]) => {
             for (let i = 0; i < repos.length; i++) {
                 const item = repos[i]
                 if (full) {
-                    item.isExist = isPathExist(item.path) && isGitRepository(item.path)
-                    if (item.isExist) {
+                    if (isGitRepository(item.path)) {
                         item.curBranch = getCurrentBranch(item.path) 
                     }
                 }
             }
+            const t2 = new Date()
+            logger.info(`getAllRepo cost time ${t2.getTime() - t1.getTime()}, is full ${full}`)
             return repos
         })
     }

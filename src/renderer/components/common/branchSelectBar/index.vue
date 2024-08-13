@@ -15,24 +15,19 @@
 </template>
 
 <script lang="ts" setup>
-import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
-import { Branches, RepoItem } from '@/types';
-import { PropType, onMounted, ref, watch } from 'vue';
+import { PropType, onMounted, ref, toRaw, watch } from 'vue';
 import { Icon } from '@iconify/vue';
+import { useRepoStore } from '@/renderer/store/modules/repository';
 
 
 const props = defineProps({
     repoPath: {
         type: String,
-        reqired: false
+        reqired: true
     },
     size: {
         type: String as PropType<"" | "default" | "small" | "large">,
         default: 'small'
-    },
-    branch: {
-        type: String,
-        required: false
     }
 })
 
@@ -50,27 +45,16 @@ const iconSize = (size: string) => {
 const emit = defineEmits<{
     (e: 'change', branch: string): void
 }>()
-const repoTaskService = new RepoTaskService()
+const repoStore = useRepoStore()
 const branches = ref<string[]>([])
 const curBranch = ref()
 const getBranches = async () => {
-    branches.value = []
-    if (props.branch) {
-        branches.value.push(props.branch)
-    }
-    else if (!props.repoPath) {
-        // console.error('path is not defined')
-    }
-    else {
-        await repoTaskService.getRepoBranch(props.repoPath).then((res: Branches) => {
-            branches.value.push(...res.all)
-            // 如果有传入的分支则使用此份之，没有就使用当前分支
-            if (props.branch) {
-                curBranch.value = branches.value[0]
-            } else {
-                curBranch.value = res.current
-            }
-        })
+    if (props.repoPath){
+        const repo = repoStore.getRepoByPath(props.repoPath)
+        if (repo) {
+            branches.value = repo.branches
+            curBranch.value = repo.curBranch
+        }
     }
 }
 onMounted(() => {

@@ -19,7 +19,7 @@ interface PathAndBranch {
 
 const _readCommitLog = async (param: PathAndBranch) => {
     const { path, branch } = param
-    const res = getCommitLogFormat(path, ['%h', '%ct', '%s', '%d', '%b', '%an', '%ae'], "", "")
+    const res = getCommitLogFormat(path, ['%h', '%ct', '%s', '%d', '%b', '%an', '%ae'], "", branch)
     const logs: CommitLogFields[] = res.map(item => {
         return {
             hash: item.hashS,

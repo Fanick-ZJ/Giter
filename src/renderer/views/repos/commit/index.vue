@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useRepoStore } from '@/renderer/store/modules/repository';
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, toRaw } from 'vue';
 import CommitDetailItem from "@/renderer/components/commitGraph/commitDetailItem.vue";
 import { Branches, CommitLogFields } from '@/types';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
@@ -66,7 +66,7 @@ const path = computed(() => decode(route.params.path as string)) // 对编码的
 const respoStore = useRepoStore()
 // 根据路径获取仓库对象
 let respoItem = computed(() => respoStore.getRepoByPath(path.value))
-const branches = ref<Array<String>>([])
+const branches = ref<string[]>([])
 const curBranch = ref()
 const loading = ref(true)
 const commitList = ref<CommitLogFields[]>([])
@@ -76,11 +76,9 @@ const contributorsList = computed(() => Array.from(new Set(commitList.value.map(
 
 const mountedFn = () => {
     if (respoItem.value) {
-        repoTaskService.getRepoBranch(respoItem.value.path).then((res: Branches) => {
-            branches.value = res.all
-            curBranch.value = res.current   // 默认选中第一个
-            branchChange(curBranch.value)
-        })
+        branches.value = respoItem.value.branches
+        curBranch.value = respoItem.value.curBranch   // 默认选中第一个
+        branchChange(respoItem.value.curBranch)
     }
 }
 

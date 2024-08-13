@@ -25,10 +25,10 @@ export const reposRenderSender = {
         repos: RepoItem,
         taskId: string
     ) => ipcRenderer.invoke('repos::addWatcher', repos, taskId),
-    getBrancheses: (  // 获取分支
+    getBranches: (  // 获取分支
         path: string,
         taskId: string
-    ) => ipcRenderer.invoke('repos::getBrancheses', path, taskId),
+    ) => ipcRenderer.invoke('repos::getBranches', path, taskId),
     getRepoBranch: (  // 获取分支
         path: string,
         taskId: string

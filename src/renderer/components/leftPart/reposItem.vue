@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { TwoDimensionPos } from '@/renderer/types'
 import { RepoItem, RepoStatus } from '@/types'
-import {useRepoStore} from '@/renderer/store/modules/repository'
+import {RepoStoreItem, useRepoStore} from '@/renderer/store/modules/repository'
 import { getRemoteSiteIcon} from '@/renderer/common/util/gitUtil'
 import {ref, watch, onMounted, reactive, toRaw, onUnmounted, computed, h} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -87,7 +87,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
     const i18n = useI18n()
     const openWithStore = useOpenWith()
     const {repos} = defineProps<{
-        repos: RepoItem
+        repos: RepoStoreItem
     }>()
     const menuOption: CustomMouseMenuOptions = {
         menuItemCss: {
@@ -153,10 +153,6 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
                 clearTimeout(status_light_timer)
                 statues_bar_show.value = false
         })
-        
-        await repoTaskService.isLocalRepoExist(repos.path).then(res => {
-            repos.isExist = res
-        })
 
         if (repos.isExist && repos.watchable){
             // 检查仓库文件提交状态
@@ -171,9 +167,6 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
                     icon && siteIcons.value.push(icon)
                 }
             })
-        })
-        repos.isExist && repoTaskService.getCurrentBranch(repos.path).then(res => {
-            repos.curBranch = res
         })
     })
     // 当前元素是否被选中
@@ -195,7 +188,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
             ipcAction.showWarnDialiog('warn', 'dialog.repoisNotExist')
             return
         }
-        const curItem = repoStore.currChosedRepo
+        const curItem = repoStore.curChosedRepo
         if (curItem?.name != repos.name) {
             router.push(`/repos/commit/${encode(repos.path)}`)
         }
@@ -208,7 +201,7 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
             repoTaskService.delRepo(repos).then( () => {
                 repoStore.remove(repos)
                 if (isChosed.value){
-                    if(repoStore.currChosedRepo == repos){  // 如果删除的仓库时对当前打开的仓库的话，就导航到空白页
+                    if(repoStore.curChosedRepo == repos){  // 如果删除的仓库时对当前打开的仓库的话，就导航到空白页
                         router.push('/empty')
                     }
                 }

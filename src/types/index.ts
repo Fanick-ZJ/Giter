@@ -26,7 +26,7 @@ export type Path = string
 export type key = string
 
 /**
- * 抽象仓库类，有仓库的基本属性, 主进程和渲染进程都在用
+ * 抽象仓库类，有仓库的基本属性，主进程再用，用于那些只需知道最基础的仓库数据的地方，像是加入新的仓库记录、仓库状态监控的等等
  */
 export interface AbstractRepoItem {
     // 路径
@@ -39,8 +39,6 @@ export interface AbstractRepoItem {
     isTop: boolean,
     // 是否隐藏
     isHidden: boolean,
-    // 仓库是否存在
-    isExist: boolean
 }
 
 /**

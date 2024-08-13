@@ -36,7 +36,7 @@ onMounted(()=>{
 })
 
 watch(()=>branch,()=>{
-    repoTaskService.getBrancheses(path).then(res=>{
+    repoTaskService.getBranches(path).then(res=>{
         branches.value = res
     })
     repoTaskService.getBranchCommtiCount(path, branch).then(res=>{

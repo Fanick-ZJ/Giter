@@ -33,7 +33,7 @@
 
 <script lang="ts" setup>
 import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskService';
-import { AbstractRepoItem, RepoItem } from '@/types';
+import { RepoItem } from '@/types';
 import { Picture as IconPicture } from '@element-plus/icons-vue'
 import { ref, onMounted, PropType, reactive, toRaw, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n';

@@ -3,24 +3,21 @@ import { AbstractRepoItem, RepoItem } from '@/types'
 import { RepoStatus } from '@/types'
 import { IpcRendererEvent } from 'electron'
 import { listAssign } from '@/renderer/common/util/tools'
-
+import { RepoTaskService } from '../../common/entity/repoTaskService';
+/**
+ * 在store中存储的仓库对象类型，因为有关于分支和存在性这种运行时才可之的数据，所以要与RepoItem分开
+ */
+export type RepoStoreItem = RepoItem & Record<'branches', string[]> & Record<'isExist', boolean>
 export const useRepoStore = defineStore('Repos', {
-    state: () => ({
-        list: new Array<RepoItem>(),
-        currChosedRepo: {
-            path: '',
-            name: '',
-            watchable: false,
-            isTop: false,
-            isHidden: false,
-            isExist: false,
-            avatar: '',
-            status: RepoStatus.UNKNOW,
-            curBranch: ''
-        } as RepoItem
-    }),
+    state: () => {
+        return {
+            list: [] as RepoStoreItem[],
+            repoTaskService: new RepoTaskService(),
+            curChosedRepo: null as RepoStoreItem | null
+        }
+    },
     actions: {
-        add(repo:RepoItem) {
+        add(repo:RepoStoreItem) {
             const index = this.list.findIndex(item => {
                 if(item.path == repo.path){
                     return item
@@ -28,24 +25,27 @@ export const useRepoStore = defineStore('Repos', {
             })
             if (index == -1) {
                 this.list.push(repo)
-            }else{
-                listAssign(this.list[index], repo)
             }
             this.sortRepoList()
         },
-        set(repoList: RepoItem[]){
+        update(repo: RepoStoreItem | RepoItem) {
+            const index = this.list.findIndex(item => item.path == repo.path)
+            if (index < 0) console.error("目标仓库不在仓库列表中")
+            else listAssign(this.list[index], repo)
+        },
+        set(repoList: RepoStoreItem[]){
             this.list = repoList
             this.sortRepoList()
         },
-        remove(repo:RepoItem) {
+        remove(repo:RepoStoreItem) {
             this.list = this.list.filter( item => item.path != repo.path)
         },
         /**
          * 界面点击仓库项选择仓库操作
          * @param item 
          */
-        chooseRepos(item: RepoItem){
-            this.currChosedRepo = item
+        chooseRepos(item: RepoStoreItem){
+            this.curChosedRepo = item
         },
         /**
         * 根据路径获取仓库对象
@@ -67,11 +67,11 @@ export const useRepoStore = defineStore('Repos', {
        * @returns 
        */
         switchRepoStatus(item: AbstractRepoItem, status: RepoStatus){
-            for(let i = 0 ; i < this.list.length ; i++){
-                if (item.path == this.list[i].path){
-                    this.list[i].status = status
-                    return
-                }
+            const repo = this.getRepoByPath(item.path)
+            if(repo){
+                repo.status = status
+            } else {
+                console.error("找不到目标仓库")
             }
         },
         /**
@@ -89,7 +89,7 @@ export const useRepoStore = defineStore('Repos', {
 
         receiveUpdateRepoInfo() {
             window.repoAPI.receiveUpdateRepoInfo((event: IpcRendererEvent, repo: RepoItem) => {
-                this.add(repo)
+                this.update(repo)
             })
         },
       /**
@@ -97,11 +97,16 @@ export const useRepoStore = defineStore('Repos', {
        */
         renderAddRepo () {
             window.repoAPI.renderAddRepo((event: IpcRendererEvent, repo: AbstractRepoItem) => {
-                this.add({
-                    ...repo,
-                    avatar: '',
-                    status: RepoStatus.UNKNOW,
-                    curBranch: ''
+                const ret = this.repoTaskService.getBranches(repo.path)
+                ret.then(branches => {
+                    this.add({
+                        ...repo,
+                        avatar: '',
+                        status: RepoStatus.UNKNOW,
+                        curBranch: '',
+                        branches,
+                        isExist: true
+                    })
                 })
             })
         },
@@ -116,5 +121,34 @@ export const useRepoStore = defineStore('Repos', {
                 }
             })
         },
+        // 获取所有仓库列表
+        getAllRepos() {
+            this.repoTaskService.getAllRepos().then(repos => {
+                repos.forEach(item => {
+                    this.repoTaskService.isLocalRepoExist(item.path)
+                    .then(async (exist) =>{
+                        let branches = [] as string[]
+                        if (exist) {
+                            branches = await this.repoTaskService.getBranches(item.path)
+                        }
+                        Reflect.defineProperty(item, 'branches', {
+                            value: branches,
+                            configurable: true
+                        })
+                        Reflect.defineProperty(item, 'isExist', {
+                            value: exist,
+                            configurable: true
+                        })
+                    })
+                    .then(async () => {
+                        if ((item as RepoStoreItem).isExist){
+                            const path = await this.repoTaskService.getCurrentBranch(item.path)
+                            item.curBranch = path
+                        }
+                        this.add(item as RepoStoreItem)
+                    })
+                })
+            })
+        }
     }
 })

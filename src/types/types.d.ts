@@ -23,7 +23,7 @@ declare global {
             addRepoWatcher: (repos: RepoItem) => Promise<any>,
             isRepoExist: (path: string | string[]) => Promise<boolean | boolean[]>,
             isPushed: (path: string) => Promise<boolean>,
-            getBrancheses: (path: string) => Promise<string[]>,
+            getBranches: (path: string) => Promise<string[]>,
             getRepoBranch: (path: string) => Promise<Branches>,
             getLog: (params: {path: string, branch: string}) => Promise<CommitLogFields[]>
             stopWatching: (repo: RepoItem) => Promise<any>,

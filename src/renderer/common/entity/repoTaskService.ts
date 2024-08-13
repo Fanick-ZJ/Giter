@@ -6,22 +6,14 @@ import { IpcRendererBasicTaskService } from "./ipcRendererBasicTaskService";
 import ErrorDialog from "../decorators/errorDialog";
 import { getCurrentBranch } from 'lib/git';
 export class RepoTaskService extends IpcRendererBasicTaskService{
-    repoStore = useRepoStore()
     /**
      * 获取所有仓库
      */
-    @ErrorDialog
-    storeGetAllRepos() {
-        console.log('开始获取仓库列表')
-        this.enqueue(window.repoAPI.getAllRepos, false).then(async (repos) => {
-            this.repoStore.set(await repos)
-        })
-    }
 
     @ErrorDialog
     async getAllRepos() {
         console.log('开始获取仓库列表')
-        return await this.enqueue(window.repoAPI.getAllRepos)
+        return await this.enqueue(window.repoAPI.getAllRepos, false)
     }
 
     
@@ -37,8 +29,14 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
     }
 
     @ErrorDialog
-    async repoExist(repo: RepoItem) {
-        const invokeRet = await this.enqueue(window.repoAPI.isRepoExist, repo.path)
+    async repoExist(repo: RepoItem | RepoItem[]) {
+        let path
+        if (Array.isArray(repo)) {
+            path = repo.map(item => item.path)
+        } else {
+            path = repo.path
+        }
+        return await this.enqueue(window.repoAPI.isRepoExist, path)
 
     }
 
@@ -74,8 +72,8 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
      * @returns 
      */
     @ErrorDialog
-    async getBrancheses(path: string){
-        const invokeRet = this.enqueue(window.repoAPI.getBrancheses, path)
+    async getBranches(path: string){
+        const invokeRet = this.enqueue(window.repoAPI.getBranches, path)
         return invokeRet
     }
     /**
@@ -173,28 +171,7 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
         const invokeRet = this.enqueue(window.repoAPI.getContributeStat, param)
         return invokeRet
     }
-    
-    /**
-     * 判断当前路径下的仓库是否已经提交
-     * @param path 仓库路径
-     * @param obj ref依赖
-     */
 
-    @ErrorDialog
-    async isCommitedFn (repos: RepoItem) {
-        return this.enqueue(window.repoAPI.isCommited, repos.path).then( async (res: Promise<boolean>) => {
-            if (!await res) this.repoStore.switchRepoStatus(repos, RepoStatus.UNCOMMIT)
-            return Promise.resolve()
-        })
-    }
-
-    @ErrorDialog
-    async isPushedFn (repos: RepoItem) {
-        return this.enqueue(window.repoAPI.isPushed, repos.path).then(async (res: Promise<boolean>) => {
-            if (!await res) this.repoStore.switchRepoStatus(repos, RepoStatus.UNPUSH)
-            return Promise.resolve()
-        })
-    }
 
     @ErrorDialog
     async openProject (path: string, ext: string) {
@@ -240,9 +217,7 @@ export class RepoTaskService extends IpcRendererBasicTaskService{
     }
     @ErrorDialog
     async checkRepoStatus(repo: RepoItem) {
-        return this.enqueue(window.repoAPI.getRepoStaus, repo.path).then(async (res) => {
-            this.repoStore.switchRepoStatus(repo, await res)
-        })
+        return this.enqueue(window.repoAPI.getRepoStaus, repo.path)
     }
     @ErrorDialog
     async getCurrentBranch(path: string) {

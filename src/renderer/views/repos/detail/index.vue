@@ -8,10 +8,10 @@
                 </el-col>
             </div>
             <InfoBar :path="path" :branch="repo.curBranch"></InfoBar>
-            <AuthorWall :contributors-rank-list="contributorsRankList" :key="repo.curBranch + repo.path" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
+            <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
             <ContributeMaseterChart></ContributeMaseterChart>
             <div class="author-charts">
-                <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="curBranch + item.author.email"></authorContributeChart>
+                <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="item.author.name + curBranch + item.author.email"></authorContributeChart>
             </div>
         </div>
     </loading-page>
