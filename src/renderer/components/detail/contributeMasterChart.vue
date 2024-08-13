@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch, markRaw, nextTick } from 'vue';
+import { ref, onMounted, reactive, watch, markRaw, nextTick, onUnmounted } from 'vue';
 import * as echarts from 'echarts';
 import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import { CurShowData } from '@/renderer/types';
@@ -54,26 +54,29 @@ const masterChartDOM = ref<HTMLElement>()
 let masterChart: echarts.ECharts
 // 月份数据统计对象，在选择的时候自动计算并存进去
 const options = reactive<EChartsOption>({})
+
+const observer = new ResizeObserver(() => {
+    const width = masterChartDOM.value?.offsetWidth
+    const height = masterChartDOM.value?.offsetHeight
+    masterChart.resize({width, height})
+})
 // 界面挂在完成之后开始初始化表格
 onMounted(async () => {
-    window.addEventListener('resize', () => {
-        // 页面中存在多个表格的时候，使用resize要带上宽高
-        if (masterChartDOM.value) {
-            console.log('masterChartDOM.value', masterChartDOM.value.getBoundingClientRect())
-            const width = masterChartDOM.value.offsetWidth;
-            masterChart?.resize({width, height: 400})
-        }
-    })
     // 初始化表格对象
     await nextTick()
-    setTimeout(() => {
-        if (masterChartDOM.value){
-            masterChart = echarts.init(masterChartDOM.value, null, {renderer: 'svg'})
-            flashChartData()
-            const width = masterChartDOM.value.offsetWidth;
-            masterChart?.resize({width, height: 400})
-        }
-    }, 500)
+    if (masterChartDOM.value){
+        observer.observe(masterChartDOM.value)
+        masterChart = echarts.init(masterChartDOM.value, null, {renderer: 'svg'})
+        flashChartData()
+        const width = masterChartDOM.value?.offsetWidth
+        const height = masterChartDOM.value?.offsetHeight
+        masterChart.resize({width, height})
+    }
+})
+
+onUnmounted(() => {
+    observer.disconnect()
+    masterChart.dispose()
 })
 /**
  * 刷新数据
@@ -173,9 +176,6 @@ const onSelectChange = (value: CurShowData) => {
     chartStore.curShowData = value
     flashChartData();
 }
-watch(() =>chartStore.commitCount, (newVal, oldVal) => {
-    flashChartData();
-})
 </script>
 
 <style scoped lang="scss">

@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { Author } from '@/types';
 import Avatar from '@/renderer/components/common/hashAvatar/index.vue'
-import { nextTick, onMounted, reactive, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import * as echarts from 'echarts';
 import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import dayjs from 'dayjs';
@@ -72,18 +72,23 @@ let authorChart: echarts.ECharts
         authorChart.setOption(options);
     }
 }
-
-onMounted(() => {
-    window.addEventListener('resize', () => {
-        authorChart?.resize({height: 200})
-    })
+const observer = new ResizeObserver(() => {
+    const width = authorChartDOM.value?.offsetWidth
+    const height = authorChartDOM.value?.offsetHeight
+    authorChart.resize({width, height})
+})
+onMounted(async () => {
     if (authorChartDOM.value){
-        // 初始化表格对象，初始化提供的表格是commitCount
-        nextTick(() => {
-            authorChart = echarts.init(authorChartDOM.value, null, {renderer: 'svg'})
-            flashChartData()
-        })
+        observer.observe(authorChartDOM.value)
+        await nextTick()
+        authorChart = echarts.init(authorChartDOM.value, null, {renderer: 'svg'})
+        flashChartData()
     }
+})
+
+onUnmounted(() => {
+    observer.disconnect()
+    authorChart.dispose()
 })
 
 watch(() => chartStore.curShowData, (newVal, oldVal) => {
