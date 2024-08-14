@@ -57,14 +57,10 @@ const _getContributorsRank = async (param: PathAndBranch) => {
 
 }
 const _getContributeStat = async (param: PathAndBranch) => {
-    logger.info('=============================================')
-    const t1 = new Date()
-    logger.info(`start getContributeStat`)
+    logger.info('==================_getContributeStat========================')
+    logger.info(JSON.stringify(param))
+    logger.info('==========================================')
     const res = getContributeStat(param.path, param.branch)
-    const t2 = new Date()
-    logger.info(`getContributeStat cost ${t2.getTime() - t1.getTime()}ms`)
-    logger.info(JSON.stringify(res))
-    logger.info('=============================================')
     parentPort?.postMessage(res)
 }
 

@@ -21,7 +21,7 @@
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { Icon } from '@iconify/vue'
 import { onMounted, ref, watch } from 'vue';
-const {path, branch} = defineProps<{
+const props = defineProps<{
     path: string,
     branch: string,
 }>()
@@ -30,16 +30,17 @@ const branches = ref<String[]>([])
 const repoTaskService = new RepoTaskService()
 const commitCount = ref(0)
 onMounted(()=>{
-    repoTaskService.getTags(path).then(res=>{
+    repoTaskService.getTags(props.path).then(res=>{
         tags.value = res
     })
 })
 
-watch(()=>branch,()=>{
-    repoTaskService.getBranches(path).then(res=>{
+watch(()=>props.branch,()=>{
+    console.log('branch change')
+    repoTaskService.getBranches(props.path).then(res=>{
         branches.value = res
     })
-    repoTaskService.getBranchCommtiCount(path, branch).then(res=>{
+    repoTaskService.getBranchCommtiCount(props.path, props.branch).then(res=>{
         commitCount.value = res
     })
 }, {

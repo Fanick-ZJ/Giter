@@ -1,17 +1,27 @@
 <template>
     <loading-page :loading="loading">
-        <div class="detail-container">
-            <div class="head">
+        <div class="w-full h-screen 
+                    p-[10px] flex
+                    flex-col gap-[10px]
+                    overflow-scroll overflow-x-hidden"
+            ref="containerRef">
+            <div class="box-border flex gap-[10px]">
                 <!-- 当绑定的值位对象时，要使用value-key来指定key -->
-                <el-col :span="8" class="select-box">
+                <el-col :span="8">
                     <branch-select-bar :repo-path="path" size="small" @change="getRepoStatData"/>
                 </el-col>
             </div>
-            <InfoBar :path="path" :branch="repo.curBranch"></InfoBar>
+            <InfoBar :path="path" :branch="curBranch"></InfoBar>
             <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
             <ContributeMaseterChart></ContributeMaseterChart>
-            <div class="author-charts">
-                <authorContributeChart v-for="item in chartStore.authorMap" :author="item.author" :key="item.author.name + curBranch + item.author.email"></authorContributeChart>
+            <div class="flex justify-center">
+                <div class="grid grid-cols-[330px,330px] w-[750px]">
+                    <authorContributeChart 
+                        v-for="item in chartStore.authorMap" 
+                        :author="item.author" 
+                        :key="item.author.name + curBranch + item.author.email"
+                        ></authorContributeChart>
+                </div>
             </div>
         </div>
     </loading-page>
@@ -47,7 +57,6 @@ onBeforeMount(async () => {
     }
 })
 
-console.log(repo.curBranch)
 const curBranch = ref<string>(repo.curBranch)     // 当前分支
 const commitCount = ref<number>(0)              // 当前分支提交次数
 const contributorsRankList = ref<Author[]>([])  // 当前分支贡献者列表
@@ -55,8 +64,17 @@ const loading = ref<boolean>(true)
 const repoTaskService = new RepoTaskService()
 const chartStore = useDetailChartStore()
 
+const width = ref(750)
+const containerRef = ref<HTMLElement>()
+const observer = new ResizeObserver(() => {
+    if (containerRef.value) {
+        width.value = containerRef.value.offsetWidth
+    }
+})
+
 onMounted(async () => {
     await nextTick()
+    containerRef.value && observer.observe(containerRef.value)
     getRepoStatData(repo.curBranch)
 })
 /**
@@ -81,8 +99,10 @@ const getRepoStatData = (branch: string) => {
         chartStore.insertion = res  .totalStat.insertion
         chartStore.dateList = res.totalStat.dateList
         chartStore.authorMap = res.authorsStat
-        loading.value = false
         commitCount.value = chartStore.commitCount.reduce((acc, cur)=>{return acc+cur})
+        chartStore.path = repo.path
+        chartStore.branch = curBranch.value
+        loading.value = false
     })
 }
 watch(

@@ -15,9 +15,9 @@ export default class Giter{
         app.whenReady().then(() => {
             this.win = new BrowserWindow({
                 height: 800,
-                width: 1000,
+                width: 1200,
                 minHeight: 700,
-                minWidth: 800,
+                minWidth: 1000,
                 webPreferences: {
                     nodeIntegration: true,  // 可以在渲染进程中使用node的api，默认是false
                     contextIsolation: true, //  不启用隔离沙箱

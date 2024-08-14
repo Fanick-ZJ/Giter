@@ -78,9 +78,9 @@ const observer = new ResizeObserver(() => {
     authorChart.resize({width, height})
 })
 onMounted(async () => {
+        await nextTick()
     if (authorChartDOM.value){
         observer.observe(authorChartDOM.value)
-        await nextTick()
         authorChart = echarts.init(authorChartDOM.value, null, {renderer: 'svg'})
         flashChartData()
     }
@@ -91,6 +91,15 @@ onUnmounted(() => {
     authorChart.dispose()
 })
 
+// 在分支变更时，更新数据
+watch(() => chartStore.branch, (newVal, oldVal) => {
+    flashChartData()
+})
+// 在仓库路径更新时更新数据
+watch(() => chartStore.path, (newVal, oldVal) => {
+    flashChartData()
+})
+// 在展示提交、删除、新增数时更新数据
 watch(() => chartStore.curShowData, (newVal, oldVal) => {
     flashChartData()
 })

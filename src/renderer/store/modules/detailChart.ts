@@ -7,9 +7,13 @@ type DetailChartStoreType = StatDailyContribute
                             & Record<'authorMap', AuthorStatDailyContribute[]> 
                             & Record<'start', Date> 
                             & Record<'end', Date> 
+                            & Record<'path', string>
+                            & Record<'branch', string>
 
 export const useDetailChartStore = defineStore('detailChartStore', {
     state: (): DetailChartStoreType => ({
+        branch: '',
+        path: '',
         start: new Date(),
         end: new Date(),
         curShowData: 'commits',
