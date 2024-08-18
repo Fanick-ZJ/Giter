@@ -81,9 +81,7 @@ import { OpenWithOption } from '../common/openWith/types'
 import { useOpenWith } from '@/renderer/store/modules/openWith'
 import { decode, encode } from '@/renderer/common/util/tools'
 import repoInfoEditDialog from '../dialog/repoInfoEditDialog/index'
-import { RepoService } from '@/electron/service/entity/repoService'
 import { Remote } from 'lib/git'
-import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskService'
     const i18n = useI18n()
     const openWithStore = useOpenWith()
     const {repos} = defineProps<{
@@ -124,7 +122,6 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
     // 获取记录中的仓库对象
     const repoStore = useRepoStore()
     const repoTaskService = new RepoTaskService()
-    const explorerTaskService = new ExplorerTaskService()
     // 鼠标移入后提示栏要出现的位置
     const tipMessagePos = reactive(new TwoDimensionPos(0, 0))
     // 鼠标移入指示灯提示
@@ -171,16 +168,8 @@ import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskServic
     })
     // 当前元素是否被选中
     const router = useRouter()
-    const route = useRoute()
 
-    const isChosed = computed(() => {
-        if (route.fullPath.startsWith('/repos/')){
-            route.meta.repoPath = decode(route.params.path as string)
-        }
-        const is = route.meta.repoPath == repos.path
-        if (is) repoStore.chooseRepos(repos)
-        return is
-    })
+    const isChosed = computed(() => repoStore.curChosedRepo?.path == repos.path)
     
     const itemClick = () => {
         if(isChosed.value) return

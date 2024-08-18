@@ -5,14 +5,27 @@
                 <div class="contributors-title">{{ $t('detailPage.contributors') }}</div>
                 <div class="contributors-num">{{ props.contributorsRankList?.length }}</div>
             </div>
-            <div class="contributors-list">
-                <div class="contributor" 
-                    v-for="item in props.contributorsRankList" 
-                    @mouseover="mouseEnterAuthorAvater($event, item)"
-                    :key="item.email + props.repoInfo.path">
+            <div class="w-full" :style="{ height: '100%' }">
+                <virtual-list 
+                    :data-source="sortContributorsToGroup()"
+                    :estimate-height="10"
+                    :direction="'horizontal'"
+                    :gap="8"
+                    :loading="false">
                     <!-- {{ item }} -->
-                    <Avatar :author="item" :width="50" :border-radius="5"></Avatar>
-                </div>
+                    <template #item="{item}">
+                        <div class="flex flex-col gap-2">
+                            <Avatar
+                            v-for="author in item.data"
+                            :author="author" 
+                            :width="50" 
+                            :border-radius="5"
+                            @mouseover="mouseEnterAuthorAvater($event, author)"
+                            :key="author.email + props.repoInfo.path">
+                        </Avatar>
+                        </div>
+                    </template>
+                </virtual-list>
             </div>
         </div>
         <!-- 用户信息提示弹窗 -->
@@ -43,12 +56,18 @@
 
 <script setup lang="ts">
 import Avatar from '@/renderer/components/common/hashAvatar/index.vue'
+import virtualList from '@/renderer/components/common/virtualList/index.vue'
 import { RepoItem } from '@/types';
 import { Author } from 'lib/git';
 import { ref, watch } from 'vue';
+import { IdAuthor } from './type';
 
+type AuthorGroup = {
+    id: number,
+    data: IdAuthor[]
+}
 const props = defineProps<{
-    contributorsRankList: Author[],
+    contributorsRankList: IdAuthor[],
     repoInfo: RepoItem
 }>()
 
@@ -60,6 +79,31 @@ const mouseEnterAuthorAvater = (e: MouseEvent, item: Author) => {
     authorRef.value = e.currentTarget
     curAuthorInfo.value = item
 }
+
+const sortContributorsToGroup = () => {
+    const groupSize = authorGroupSize()
+    const groupList: AuthorGroup[] = []
+    for (let i = 0, j = 0; i < props.contributorsRankList.length; i += groupSize) {
+        groupList.push({
+            id: j++,
+            data: props.contributorsRankList.slice(i, i + groupSize)
+        })
+    }
+    return groupList
+}
+
+const authorGroupSize = () => {
+    return props.contributorsRankList.length > 100
+            ? 5
+            : props.contributorsRankList.length > 50
+            ? 4
+            : props.contributorsRankList.length > 20
+            ? 3
+            : props.contributorsRankList.length > 10
+            ? 2
+            : 1 
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -82,13 +126,6 @@ const mouseEnterAuthorAvater = (e: MouseEvent, item: Author) => {
                 background-color: #7e8082;
                 padding: 2px 10px;
             }
-        }
-        .contributors-list{
-            display: flex;
-            flex-wrap: wrap;
-            flex-direction: row;
-            margin-top: 5px;
-            gap: 10px;
         }
     }
 </style>

@@ -47,6 +47,9 @@ export const useRepoStore = defineStore('Repos', {
         chooseRepos(item: RepoStoreItem){
             this.curChosedRepo = item
         },
+        cancelChosedRepos(){
+            this.curChosedRepo = null
+        },
         /**
         * 根据路径获取仓库对象
         * @param name 

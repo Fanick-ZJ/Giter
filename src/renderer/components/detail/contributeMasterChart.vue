@@ -18,7 +18,7 @@
             <span v-else-if="chartStore.curShowData == 'insertions'">{{ $t('chart.contributeMasterChartInsertTitle') }}</span>
         </div>
         <div class="flex justify-center">
-            <div class="h-[400px] w-[750px]" ref="masterChartDOM"></div>
+            <div class="h-[400px] w-full" ref="masterChartDOM"></div>
         </div>
     </div>
 </template>
@@ -56,11 +56,18 @@ let masterChart: echarts.ECharts
 // 月份数据统计对象，在选择的时候自动计算并存进去
 const options = reactive<EChartsOption>({})
 
+const observer = new ResizeObserver(() => {
+    if(masterChart){
+        masterChart.resize()
+    }
+})
+
 // 界面挂在完成之后开始初始化表格
 onMounted(async () => {
     // 初始化表格对象
     await nextTick()
     if (masterChartDOM.value){
+        observer.observe(masterChartDOM.value)
         masterChart = echarts.init(masterChartDOM.value, null, {renderer: 'svg'})
         flashChartData()
     }
@@ -68,6 +75,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     masterChart.dispose()
+    observer.disconnect()
 })
 /**
  * 刷新数据
@@ -168,13 +176,8 @@ const onSelectChange = (value: CurShowData) => {
     flashChartData();
 }
 
-watch(() => chartStore.path, () => {
+watch([() => chartStore.path, () => chartStore.branch], () => {
     // 如果当前数据仓库变了，就刷新表格
-    flashChartData()
-})
-watch(() => chartStore.branch, () => {
-    // 如果当前数据仓库变了，就刷新表格
-    console.log('刷新数据了', chartStore.curDataList)
     flashChartData()
 })
 </script>

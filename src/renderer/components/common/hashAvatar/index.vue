@@ -3,12 +3,12 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Author">
 import { Author } from '@/types'
 import { getAvatar } from '@/renderer/common/util/gitUtil';
 import { onBeforeMount, onMounted, ref } from 'vue';
 const { author, width, borderRadius } = defineProps<{
-    author: Author
+    author: T
     width: number
     borderRadius: number
 }>()

@@ -1,17 +1,37 @@
 <template>
     <loading-page :loading="loading">
-        <div class="grap-container">
-            <el-row class="top-bar" justify="space-between">
-                <el-col :span="10" class="select-box">
-                    <el-text class="select-label" size="default">{{ $t('commitGraph.current_branch') }}</el-text>
+        <!-- grap-container -->
+        <div class="w-full h-full
+                    box-border relative
+                    overflow-x-hidden">
+            <!-- tool bar -->
+            <el-row class="w-full z-[2]
+                            bg-right-color h-[var(--tool-bar-height)]
+                            py-[1] relative
+                            after:content-[''] after:h-[calc(var(--tool-bar-height)+10px)]
+                            after:w-full after:bg-right-color
+                            after:absolute after:bottom-[-20px]
+                            after:blur-sm after:z-[-1]" justify="space-between">
+                <!-- branch select bar -->
+                <el-col :span="10" class="flex items-center
+                                          gap-2">
+                    <!-- select label -->
+                    <el-text class="font-semibold mr-[10px]
+                                    leading-[38px] box-border
+                                    after:content-['']" size="default">{{ $t('commitGraph.current_branch') }}</el-text>
                     <branch-select-bar
                     :repo-path="path" 
                     size="small"
                     @change="branchChange"
                     style="width: 200px"/>
                 </el-col>
-                <el-col :span="4" class="filter-box" data-size-small>
-                    <el-text class="mx-1 select-label" size="large">{{ $t('commitGraph.filter') }} </el-text>
+                <!-- filter -->
+                <el-col :span="4" class="px-[10px] rounded-[10px]
+                                        border-solid border-1
+                                        border-slate-400 text-align-center">
+                    <el-text class="mx-1 font-semibold 
+                                    mr-[10px] leading-[38px] 
+                                    box-border" size="large">{{ $t('commitGraph.filter') }} </el-text>
                     <el-popover placement="bottom" :width="400" :visible="filterVisible">
                     <template #reference>
                         <el-text size="large" @click="() => filterVisible= true">⬇️ </el-text>
@@ -24,13 +44,29 @@
                     </el-popover>
                 </el-col>
             </el-row>
-            <el-row v-auto-animate class="commit-container">
-                <template v-for="item in filteredCommitList.slice((currentPage - 1) * pageSize, (currentPage) * pageSize)" :key="item.hash">
-                    <commit-detail-item :detail="item" :repo="respoItem!"/>
-                </template>
+            <el-row v-auto-animate 
+                class="block h-[calc(100%-2*var(--tool-bar-height))]
+                       overflow-y-scroll overflow-x-hidden
+                       px-[10px] py-[10px]
+                       gap-[10px] flex-row
+                       items-start">
+                <commit-detail-item
+                    class="hover:scale-[1.01]"
+                    :detail="item" 
+                    :repo="respoItem!"
+                    v-for="item in filteredCommitList.slice((currentPage - 1) * pageSize, (currentPage) * pageSize)"
+                    :key="item.hash"/>
             </el-row>
-            <el-row class="pagination">
+            <el-row class="w-full justify-center
+                           overflow-x-clip overflow-y-visible
+                           absolute bottom-0 
+                           content-center z-2 h-[var(--tool-bar-height)]
+                           after:content-[''] after:absolute
+                           after:h-[20px] after:w-full
+                           after:bg-right-color after:blur-sm 
+                           after:top-[-5px] after:z-[1]">
                 <el-pagination
+                    class="z-[2]"
                     v-model:current-page="currentPage"
                     v-model:page-size="pageSize"
                     :page-sizes="[10, 20, 30, 40]"
@@ -49,10 +85,10 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { useRepoStore } from '@/renderer/store/modules/repository';
-import { ref, onMounted, computed, toRaw } from 'vue';
+import { RepoStoreItem, useRepoStore } from '@/renderer/store/modules/repository';
+import { ref, onMounted, computed, watch } from 'vue';
 import CommitDetailItem from "@/renderer/components/commitGraph/commitDetailItem.vue";
-import { Branches, CommitLogFields } from '@/types';
+import { CommitLogFields, RepoItem } from '@/types';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
@@ -62,10 +98,16 @@ import LoadingPage from '@/renderer/components/common/LoadingPage/index.vue';
 
 defineOptions({ name: 'commitGraph' })
 const route = useRoute();
-const path = computed(() => decode(route.params.path as string)) // 对编码的路径解码
+const path = ref<string>('')
 const respoStore = useRepoStore()
 // 根据路径获取仓库对象
-let respoItem = computed(() => respoStore.getRepoByPath(path.value))
+let respoItem = ref<RepoStoreItem>()
+watch(() => route.fullPath, (newVal, oldVal) => {
+    if (newVal.startsWith('/repos/commit')) {
+        path.value = decode(route.params.path as string)
+        respoItem.value = respoStore.getRepoByPath(path.value)
+    }
+}, {immediate: true})
 const branches = ref<string[]>([])
 const curBranch = ref()
 const loading = ref(true)
@@ -169,109 +211,7 @@ const handleCurrentChange = (val: number) => {
 
 <style lang="scss" scoped>
 @import "element-plus/theme-chalk/display.css";
-    $top_bottom_height: 30px;
-    * {
-        font-family: $font;
-    }
-    .grap-container{
-        width: 100%;
-        height: 100%;
-        box-sizing: border-box;
-        position: relative;
-        overflow-y: scroll;
-        overflow-x: hidden;
-    }
-    .top-bar{
-        width: 100%;
-        z-index: 2;
-        background-color: $right_part_background;
-        height: $top_bottom_height;
-        padding: 0 10px;
-        margin-bottom: 10px;
-        position: relative;
-    }
-    .top-bar::after{
-        content: "";
-        height: calc($top_bottom_height + 10px);
-        width: 100%;
-        background-color: $right_part_background;
-        position: absolute;
-        bottom: -20px;
-        filter: blur(5px);
-        z-index: -1;
-    }
-    .select-label {
-        font-weight: 600;
-        margin-right: 10px;
-        line-height: 38px;
-        box-sizing: border-box;
-    }
-    .select-label::after {
-        content: ":";
-    }
-    .select-box{
-        display: flex;
-        align-items: center;
-    }
-    .filter-box{
-        padding: 0px 10px;
-        border-radius: 10px;
-        border: #bdbdbd86 solid 1px;
-        display: grid;
-        grid-template-columns: 60px 1fr;
-        &[data-size-small]{
-            &:nth-child(2) {
-                text-align: center;
-            }
-        }
-    }
-    .commit-container {
-        display: block;
-        height: calc(100% - 2 * $top_bottom_height);
-        overflow-y: scroll;
-        overflow-x: hidden;
-        padding: 0 10px;
-    }
-    .pagination{
-        display: flex;
-        width: 100%;
-        overflow-x: clip;
-        overflow-y: visible;
-        position: absolute;
-        bottom: 0px;
-        height: $top_bottom_height;
-        justify-content: center;
-        align-content: center;
-        z-index: 2;
-    }
-    .pagination::before{
-        content: "";
-        position: absolute;
-        height: calc($top_bottom_height + 10px);
-        width: 100%;
-        background-color: $right_part_background;
-        filter: blur(5px);
-        top: -10px;
-        z-index: -1;
-    }
-::-webkit-scrollbar
-{
-    width:5px;
-    height:10px;
-    background-color:rgba(255, 255, 255, 0.271)
-}
-/*定义滚动条轨道
- 内阴影+圆角*/
-::-webkit-scrollbar-track
-{
-    background-color:#f0ebeb00;
-}
-/*定义滑块
-rgb(255, 255, 255) 内阴影+圆角*/
-::-webkit-scrollbar-thumb
-{
-    border-radius:10px;
-    -webkit-box-shadow:inset 0 0 6px rgba(0,0,0,.3);
-    background-color:#bdbdbd86;
+* {
+    --tool-bar-height: 40px;
 }
 </style>

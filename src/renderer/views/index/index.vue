@@ -13,15 +13,13 @@ import LeftPart from '@/renderer/components/leftPart/index.vue'
 import { useMainRoute } from '@/renderer/store/modules/route';
 import { useRepoStore } from '@/renderer/store/modules/repository';
 import RightPart from '@/renderer/components/rightPart/index.vue'
-import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import OpenWith from '@/renderer/components/common/openWith/index.vue'
 import draggableBag from '@/renderer/components/common/fileBag/draggableBag.vue';
 import { ConfigTaskService } from '@/renderer/common/entity/configTaskService';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useDragBar } from '@/renderer/common/hook/useDragBar';
 
 const mainRouter = useMainRoute()
-const repoTaskService = new RepoTaskService()
 const configService = new ConfigTaskService()
 configService.getLanguage().then(res => {
     console.log(res)

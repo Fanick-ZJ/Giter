@@ -12,16 +12,25 @@
                 </el-col>
             </div>
             <InfoBar :path="path" :branch="curBranch"></InfoBar>
+            <!-- <AuthorWall :contributors-rank-list="testAvatarList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall> -->
             <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
             <ContributeMaseterChart></ContributeMaseterChart>
-            <div class="flex justify-center">
-                <div class="grid grid-cols-[330px,330px] w-[750px]">
-                    <authorContributeChart 
-                        v-for="item in chartStore.authorMap" 
-                        :author="item.author" 
-                        :key="item.author.name + curBranch + item.author.email"
-                        ></authorContributeChart>
-                </div>
+            <div class='w-full h-[300px]'>
+                <virtual-list :data-source="getAuthorMapGroup()" 
+                    direction="vertical" 
+                    :gap="10" 
+                    :estimate-height="40" 
+                    :loading="false">
+                    <template #item="{ item }">
+                        <div class="flex  justify-center">
+                            <authorContributeChart 
+                                v-for="authorContribute in item.data" 
+                                :author="authorContribute.author" 
+                                :key="authorContribute.author.name + curBranch + authorContribute.author.email"
+                            ></authorContributeChart>
+                        </div>
+                    </template>
+                </virtual-list>
             </div>
         </div>
     </loading-page>
@@ -38,11 +47,13 @@ import ContributeMaseterChart  from '@/renderer/components/detail/contributeMast
 import authorContributeChart from '@/renderer/components/detail/authorContributeChart.vue';
 import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
-import { decode, encode } from '@/renderer/common/util/tools';
+import { decode, encode, uuid } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
 import _ from 'lodash';
-import { Author, Branch } from 'lib/git';
+import { Author, AuthorStatDailyContribute, Branch } from 'lib/git';
 import LoadingPage from '@/renderer/components/common/LoadingPage/index.vue';
+import { IdAuthor } from '@/renderer/components/detail/type';
+import VirtualList from '@/renderer/components/common/virtualList/index.vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -59,22 +70,49 @@ onBeforeMount(async () => {
 
 const curBranch = ref<string>(repo.curBranch)     // 当前分支
 const commitCount = ref<number>(0)              // 当前分支提交次数
-const contributorsRankList = ref<Author[]>([])  // 当前分支贡献者列表
+const contributorsRankList = ref<IdAuthor[]>([])  // 当前分支贡献者列表
 const loading = ref<boolean>(true)
 const repoTaskService = new RepoTaskService()
 const chartStore = useDetailChartStore()
 
-const width = ref(750)
 const containerRef = ref<HTMLElement>()
-const observer = new ResizeObserver(() => {
-    if (containerRef.value) {
-        width.value = containerRef.value.offsetWidth
+
+const testAvatarList = ref<IdAuthor[]>([])
+function randomString(length) {
+    var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = '';
+    for (var i = length; i > 0; --i) 
+        result += str[Math.floor(Math.random() * str.length)];
+    return result;
+}
+
+for (let i = 0 ; i < 1000; i++) {
+    testAvatarList.value.push({
+        name: randomString(10),
+        email: randomString(10),
+        id: i
+    })
+}
+
+type AuthorContributeGroup = {
+    id: number,
+    data: AuthorStatDailyContribute[]
+}
+const getAuthorMapGroup = () => {
+    const group: AuthorContributeGroup[] = []
+    for (let i = 0, j = 0; i < chartStore.authorMap.length; i += 2) {
+        const g = {
+            id: j++,
+            data: chartStore.authorMap.slice(i, i += 2)
+        }
+        group.push(g)
+        console.log(i, chartStore.authorMap.slice(i, i += 2))
     }
-})
+    return group
+}
 
 onMounted(async () => {
     await nextTick()
-    containerRef.value && observer.observe(containerRef.value)
     getRepoStatData(repo.curBranch)
 })
 /**
@@ -86,7 +124,7 @@ const getRepoStatData = (branch: string) => {
     // 获取日志
     repoTaskService.getBranchContributorsRank(repo.path, branch)
     .then((res) => {
-        contributorsRankList.value = res
+        contributorsRankList.value = res.map((item: Author, index: number) => Object.defineProperty(item, 'id', {value: index})) as IdAuthor[]
         // 获取仓库统计信息
         return repoTaskService.getContributeStat(repo.path, branch)
     }).then(res => {

@@ -1,31 +1,46 @@
 <template>
-    <div 
-        class="detail-item"
+    <!-- container -->
+    <div class="h-[var(--item-height)] w-full
+                px-[10px] min-w-[630px]
+                grid grid-cols-[var(--avatar-width)_1fr]
+                gap-x-[10px] drop-shadow-md
+                shadow-[0_2px_5px_1px_rgba(140,138,140,0.52)]
+                rounded-[10px] transition-all
+                bg-white"
         v-context-menu="menuOption"
         >
-        <div class="avatar-box">
+        <!-- avatar -->
+        <div class="float-left h-[var(--item-height)]
+                    flex items-center
+                    box-border">
             <avatar :author="{name: detail.author_name, email: detail.author_email}" :width="70" :border-radius="10"></avatar>
         </div>
-        <div class="commit-detail">
-            <div class="commit-detail-box">
-                <div class="detail-info-header">
-                    <div class="user-email">
-                        <b class="user">{{ detail.author_name }}</b>
-                        <sub ref="email" class="email"> {{ detail.author_email }}</sub>
-                    </div>
-                    <div class="time">
-                        <span class="time">{{ dayjs(detail.date).format('YYYY-MM-DD HH:mm') }}</span>
-                    </div>
+        <!-- commit detail -->
+        <div class="min-w-[460px] text-black
+                    float-right">
+            <!-- author email time -->
+            <div class="flex h-[var(--name-email-height)]
+                        items-end justify-between
+                        mb-[5px]">
+                <div class="flex">
+                    <b class="font-bold mr-[3px]">{{ detail.author_name }}</b>
+                    <sub ref="email" class="h-[15px] text-gray-600
+                                            leading-[15px] font-bold"> {{ detail.author_email }}</sub>
                 </div>
-                <span class="message" size="large" truncated>{{ detail.message }}</span>
+                <div class="float-right text-end
+                            text-sm font-bold">
+                    <span class="time">{{ dayjs(detail.date).format('YYYY-MM-DD HH:mm') }}</span>
+                </div>
+            </div>
+            <div class="text-sm leading-[17px]
+                         line-clamp-2" size="large" truncated>
+                {{ detail.message }}
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { CommitDetail } from "@/renderer/types";
-import {formatDate} from "@vueuse/shared";
 import { ref } from 'vue'
 import avatar from '@/renderer/components/common/hashAvatar/index.vue'
 import { CustomMouseMenuOptions } from "../common/contextMenu/types";
@@ -75,6 +90,13 @@ const isOverFlow = () => {
 <style lang="scss">
 $item-height: 100px;
 $avatar-width: 70px;
+
+
+* {
+    --avatar-width: 70px;
+    --item-height: 100px;
+    --name-email-height: 35px;
+}
 .detail-item{
     height: $item-height;
     margin: 10px 0;

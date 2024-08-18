@@ -13,7 +13,7 @@
             <div class="sk-cube sk-cube9"></div>
             </div>
         </div>
-        <div class="__loading__slot__container" v-show="!loading">
+        <div class="__loading__slot__container" :style="{opacity: loading ? 0 : 1}">
             <slot>
 
             </slot>
