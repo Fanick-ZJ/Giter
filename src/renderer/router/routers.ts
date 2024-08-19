@@ -1,8 +1,3 @@
-import { RouteComponent, RouteLocationNormalized, RouterOptions, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router'
-import { useDetailChartStore } from '../store/modules/detailChart'
-import { KeepAlive } from 'vue'
-import { flattedChildren } from 'element-plus/es/utils/index.mjs'
-
 // 对外暴露的配置路由
 export const constantRoute = [
     {

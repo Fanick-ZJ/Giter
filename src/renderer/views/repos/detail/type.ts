@@ -1,0 +1,1 @@
+export type CurShowData = 'commits' | 'insertions' | 'deletions'

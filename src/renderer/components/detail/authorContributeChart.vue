@@ -1,32 +1,33 @@
 <template>
-    <div class="author-contribute-chart">
-       <div class="author-info">
+    <div class="h-[200px] w-full">
+       <div class="flex gap-[10px]">
             <Avatar 
-        :author="author" 
+        :author="authorStat.author" 
         :border-radius="5" 
         :width="40"></Avatar>
-        <el-text>{{ author.name  }}</el-text>
+        <el-text>{{ authorStat.author.name  }}</el-text>
        </div>
-        <div class="chart" ref="authorChartDOM"></div>
+        <div class="w-full h-full" ref="authorChartDOM"></div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { Author } from '@/types';
 import Avatar from '@/renderer/components/common/hashAvatar/index.vue'
 import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import * as echarts from 'echarts';
-import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import dayjs from 'dayjs';
+import { AuthorStatDailyContribute } from 'lib/git';
+import { CurShowData } from '@/renderer/views/repos/detail/type';
 const props = defineProps<{
-    author: Author
+    authorStat: AuthorStatDailyContribute,
+    curShowData: CurShowData
 }>()
 
 type EChartsOption = echarts.EChartsOption;
-const chartStore = useDetailChartStore()
 const authorChartDOM = ref<HTMLElement>()
 const options = reactive<EChartsOption>({})
 let authorChart: echarts.ECharts
+
 /**
  * 刷新数据
  */
@@ -52,7 +53,7 @@ let authorChart: echarts.ECharts
     // x轴
     options.xAxis = {
         // show: false,
-        data: chartStore.getUserDateList(props.author.name).map(item => dayjs(item).format('YYYY-MM-DD')),
+        data: props.authorStat.stat.dateList.map(item => dayjs(item).format('YYYY-MM-DD')),
     };
     // y轴
     options.yAxis = {};
@@ -62,7 +63,7 @@ let authorChart: echarts.ECharts
     options.series = {
         type: 'line',
         showSymbol: true,
-        data: chartStore.curAuthorDataList(props.author.name),
+        data: getAuthorData(),
         smooth: true,
         areaStyle: {}
     }
@@ -72,38 +73,37 @@ let authorChart: echarts.ECharts
         authorChart.setOption(options);
     }
 }
+
+
+const getAuthorData = () => {
+    const stat = props.authorStat.stat
+    return props.curShowData === 'commits'
+            ? stat.commitCount
+            : props.curShowData === 'deletions'
+            ? stat.deletions
+            : stat.insertion
+}
+
 const observer = new ResizeObserver(() => {
     const width = authorChartDOM.value?.offsetWidth
     const height = authorChartDOM.value?.offsetHeight
     authorChart.resize({width, height})
 })
-onMounted(async () => {
-        await nextTick()
-    if (authorChartDOM.value){
-        observer.observe(authorChartDOM.value)
-        authorChart = echarts.init(authorChartDOM.value, null, {renderer: 'svg'})
-        flashChartData()
-    }
+
+onMounted(() => {
+    nextTick(() => {
+        if (authorChartDOM.value){
+            observer.observe(authorChartDOM.value)
+            authorChart = echarts.init(authorChartDOM.value, null, {renderer: 'svg'})
+            flashChartData()
+        }
+    })
 })
 
 onUnmounted(() => {
     observer.disconnect()
     authorChart.dispose()
 })
-
-// 在分支变更时，更新数据
-watch(() => chartStore.branch, (newVal, oldVal) => {
-    flashChartData()
-})
-// 在仓库路径更新时更新数据
-watch(() => chartStore.path, (newVal, oldVal) => {
-    flashChartData()
-})
-// 在展示提交、删除、新增数时更新数据
-watch(() => chartStore.curShowData, (newVal, oldVal) => {
-    flashChartData()
-})
-
 </script>
 
 <style scoped lang="scss">

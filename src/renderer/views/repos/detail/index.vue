@@ -12,20 +12,20 @@
                 </el-col>
             </div>
             <InfoBar :path="path" :branch="curBranch"></InfoBar>
-            <!-- <AuthorWall :contributors-rank-list="testAvatarList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall> -->
-            <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
+            <!-- <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall> -->
             <ContributeMaseterChart></ContributeMaseterChart>
-            <div class='w-full h-[300px]'>
-                <virtual-list :data-source="getAuthorMapGroup()" 
+            <div class='w-full h-[400px]'>
+                <virtual-list :data-source="getAuthorMapGroup()"
                     direction="vertical" 
                     :gap="10" 
-                    :estimate-height="40" 
+                    :estimate-height="200" 
                     :loading="false">
                     <template #item="{ item }">
-                        <div class="flex  justify-center">
+                        <div class="grid grid-cols-2 gap-[10px]">
                             <authorContributeChart 
                                 v-for="authorContribute in item.data" 
-                                :author="authorContribute.author" 
+                                :author-stat="authorContribute"
+                                :cur-show-data="curShowData"
                                 :key="authorContribute.author.name + curBranch + authorContribute.author.email"
                             ></authorContributeChart>
                         </div>
@@ -39,22 +39,22 @@
 <script setup lang="ts">
 import { useRepoStore } from '@/renderer/store/modules/repository';
 import { useRoute, useRouter } from 'vue-router';
-import {computed, nextTick, onBeforeMount, onMounted, ref, watch} from 'vue'
+import {computed, nextTick, onBeforeMount, onMounted, onUnmounted, ref, watch} from 'vue'
 import { RepoItem} from '@/types';
 import InfoBar from '@/renderer/components/detail/infoBar.vue'
 import AuthorWall from '@/renderer/components/detail/authorWall.vue'
 import ContributeMaseterChart  from '@/renderer/components/detail/contributeMasterChart.vue'
 import authorContributeChart from '@/renderer/components/detail/authorContributeChart.vue';
-import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
 import { RepoTaskService } from '@/renderer/common/entity/repoTaskService';
 import { decode, encode, uuid } from '@/renderer/common/util/tools';
 import branchSelectBar from '@/renderer/components/common/branchSelectBar/index.vue'
 import _ from 'lodash';
-import { Author, AuthorStatDailyContribute, Branch } from 'lib/git';
+import { Author, AuthorStatDailyContribute, Branch, BranchStatDailyContribute, StatDailyContribute } from 'lib/git';
 import LoadingPage from '@/renderer/components/common/LoadingPage/index.vue';
 import { IdAuthor } from '@/renderer/components/detail/type';
 import VirtualList from '@/renderer/components/common/virtualList/index.vue';
-
+import { CurShowData } from './type';
+import dayjs from 'dayjs';
 const route = useRoute()
 const router = useRouter()
 const path = computed(() => decode(route.params.path as string)) // 对编码的路径解码
@@ -69,47 +69,41 @@ onBeforeMount(async () => {
 })
 
 const curBranch = ref<string>(repo.curBranch)     // 当前分支
-const commitCount = ref<number>(0)              // 当前分支提交次数
 const contributorsRankList = ref<IdAuthor[]>([])  // 当前分支贡献者列表
 const loading = ref<boolean>(true)
 const repoTaskService = new RepoTaskService()
-const chartStore = useDetailChartStore()
 
 const containerRef = ref<HTMLElement>()
-
-const testAvatarList = ref<IdAuthor[]>([])
-function randomString(length) {
-    var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    var result = '';
-    for (var i = length; i > 0; --i) 
-        result += str[Math.floor(Math.random() * str.length)];
-    return result;
-}
-
-for (let i = 0 ; i < 1000; i++) {
-    testAvatarList.value.push({
-        name: randomString(10),
-        email: randomString(10),
-        id: i
-    })
-}
 
 type AuthorContributeGroup = {
     id: number,
     data: AuthorStatDailyContribute[]
 }
+
+type DetailChartStoreType = StatDailyContribute
+                            & Record<'authorMap', AuthorStatDailyContribute[]> 
+                            & Record<'start', Date> 
+                            & Record<'end', Date> 
+                            & Record<'path', string>
+                            & Record<'branch', string>
+
+
+const repoStatInfo = ref<DetailChartStoreType>()
+const curShowData = ref<CurShowData>('commits')
 const getAuthorMapGroup = () => {
     const group: AuthorContributeGroup[] = []
-    for (let i = 0, j = 0; i < chartStore.authorMap.length; i += 2) {
-        const g = {
-            id: j++,
-            data: chartStore.authorMap.slice(i, i += 2)
+    if (repoStatInfo.value) {
+        for (let i = 0, j = 0; i < repoStatInfo.value!.authorMap.length; i += 2) {
+            const g = {
+                id: j++,
+                data: repoStatInfo.value!.authorMap.slice(i, i + 2)
+            }
+            group.push(g)
         }
-        group.push(g)
-        console.log(i, chartStore.authorMap.slice(i, i += 2))
-    }
-    return group
+        return group
+    } else return []
 }
+
 
 onMounted(async () => {
     await nextTick()
@@ -127,19 +121,20 @@ const getRepoStatData = (branch: string) => {
         contributorsRankList.value = res.map((item: Author, index: number) => Object.defineProperty(item, 'id', {value: index})) as IdAuthor[]
         // 获取仓库统计信息
         return repoTaskService.getContributeStat(repo.path, branch)
-    }).then(res => {
+    }).then((res: BranchStatDailyContribute) => {
         console.log("获取贡献数据完成")
-        chartStore.start = res.totalStat.dateList[0]
-        chartStore.end = _.last(res.totalStat.dateList) || res.totalStat.dateList[0]
-        chartStore.changeFiles = res.totalStat.changeFiles
-        chartStore.commitCount = res.totalStat.commitCount
-        chartStore.deletions = res.totalStat.deletions
-        chartStore.insertion = res  .totalStat.insertion
-        chartStore.dateList = res.totalStat.dateList
-        chartStore.authorMap = res.authorsStat
-        commitCount.value = chartStore.commitCount.reduce((acc, cur)=>{return acc+cur})
-        chartStore.path = repo.path
-        chartStore.branch = curBranch.value
+        repoStatInfo.value = {
+            start: new Date(res.totalStat.dateList[0]),
+            end: new Date(res.totalStat.dateList[res.totalStat.dateList.length - 1] || res.totalStat.dateList[0]),
+            changeFiles: res.totalStat.changeFiles,
+            deletions: res.totalStat.deletions,
+            insertion: res.totalStat.insertion,
+            dateList: res.totalStat.dateList,
+            authorMap: res.authorsStat,
+            path: repo.path,
+            branch: curBranch.value,
+            commitCount: res.totalStat.commitCount,
+        }
         loading.value = false
     })
 }

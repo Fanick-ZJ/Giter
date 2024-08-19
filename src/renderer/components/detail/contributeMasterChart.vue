@@ -1,10 +1,10 @@
 <template>
     <div class="header">
         <div class="timeAndSelect">
-            <div class="time">{{ chartStore.start }} – {{ chartStore.end }}</div>
+            <div class="time">{{ totalStat.dateList[0] }} – {{ _.last(totalStat.dateList) }}</div>
             <div class="select-box">
                 <!-- 当绑定的值位对象时，要使用value-key来指定key -->
-                <el-select v-model="chartStore.curShowData" size="large" placeholder="Select" value-key="value" @change="onSelectChange">
+                <el-select v-model="curShowData" size="large" placeholder="Select" value-key="value" @change="onSelectChange">
                     <template #prefix>
                         {{ $t('chart.selectPrefix') }}
                     </template>
@@ -13,9 +13,9 @@
             </div>
         </div>
         <div class="title">
-            <span v-if="chartStore.curShowData == 'commits'">{{ $t('chart.contributeMasterChartCommitTitle') }}</span>
-            <span v-else-if="chartStore.curShowData == 'deletions'">{{ $t('chart.contributeMasterChartDeleteTitle') }}</span>
-            <span v-else-if="chartStore.curShowData == 'insertions'">{{ $t('chart.contributeMasterChartInsertTitle') }}</span>
+            <span v-if="curShowData == 'commits'">{{ $t('chart.contributeMasterChartCommitTitle') }}</span>
+            <span v-else-if="curShowData == 'deletions'">{{ $t('chart.contributeMasterChartDeleteTitle') }}</span>
+            <span v-else-if="curShowData == 'insertions'">{{ $t('chart.contributeMasterChartInsertTitle') }}</span>
         </div>
         <div class="flex justify-center">
             <div class="h-[400px] w-full" ref="masterChartDOM"></div>
@@ -25,15 +25,23 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, watch, markRaw, nextTick, onUnmounted } from 'vue';
+import _ from 'lodash';
 import * as echarts from 'echarts';
-import { useDetailChartStore } from '@/renderer/store/modules/detailChart';
-import { CurShowData } from '@/renderer/types';
 import dayjs from 'dayjs';
+import { AuthorStatDailyContribute, StatDailyContribute } from 'lib/git';
+import { CurShowData } from '@/renderer/views/repos/detail/type';
 
 type TableOptionItem = {
     name: string,
     value: string
 }
+
+const props = defineProps<{
+    totalStat: StatDailyContribute,
+    curShowData: CurShowData,
+    authorMap: AuthorStatDailyContribute[]
+}>()
+
 const optionList: TableOptionItem[] = [
     {
         name: 'chart.commitsOption',
@@ -49,7 +57,6 @@ const optionList: TableOptionItem[] = [
     }
 ]
 type EChartsOption = echarts.EChartsOption;
-const chartStore = useDetailChartStore()
 const masterChartDOM = ref<HTMLElement>()
 // 在vue3中，第三方库的类型在不必要的时候不要使用响应式来表示
 let masterChart: echarts.ECharts
@@ -100,7 +107,7 @@ const flashChartData = () => {
     };
     // x轴
     options.xAxis = {
-        data: chartStore.dateList.map(item => dayjs(item).format('YYYY-MM-DD')),
+        data: props.totalStat.dateList.map(item => dayjs(item).format('YYYY-MM-DD')),
     };
     // y轴
     options.yAxis = {};
@@ -110,14 +117,14 @@ const flashChartData = () => {
     options.series = {
         type: 'line',
         showSymbol: true,
-        data: chartStore.curDataList,
+        data: getShowData(),
         smooth: true,
         areaStyle: {}
     }
     // 渐变颜色
     options.gradientColor = ['#9FE286', '#37D527']
     // 数据数量到达一定程度，加入下方的滑动条
-    if (chartStore.curDataList.length > 100){
+    if (getShowData().length > 100){
         options.dataZoom = [
             {
                 type: 'inside',
@@ -143,7 +150,7 @@ const flashChartData = () => {
 const chartOverShowDailyData = (params: any, asyncTicket: string): HTMLElement[] => {
     const res: HTMLElement[] = []
     let arr:any[] = []
-    chartStore.authorMap.forEach(item => {
+    props.authorMap.forEach(item => {
         for(let i = 0 ; i < item.stat.dateList.length; i++){
             if(dayjs(item.stat.dateList[i]).format("YYYY-MM-DD") == params[0].name){
                 arr.push([item.author.name, chartStore.curAuthorDataList(item.author.name)[i]])
@@ -169,6 +176,15 @@ const chartOverShowDailyData = (params: any, asyncTicket: string): HTMLElement[]
         res.push(div)
     })
     return res
+}
+
+const getShowData = () => {
+    const stat = props.totalStat
+    return props.curShowData === 'commits'
+            ? stat.commitCount
+            : props.curShowData === 'deletions'
+            ? stat.deletions
+            : stat.insertion
 }
 
 const onSelectChange = (value: CurShowData) => {

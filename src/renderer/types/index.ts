@@ -26,8 +26,7 @@ export interface CommitDetail {
     message: string,
     refs: string
  }
- 
-export type CurShowData = 'commits' | 'insertions' | 'deletions'
+
 
 export type remoteRepoSiteIcon = 'mdi:github' | 'simple-icons:gitee' | undefined
 
