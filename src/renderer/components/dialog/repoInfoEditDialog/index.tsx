@@ -4,10 +4,10 @@ import RepoInfoEditDialog, { Expose } from "./index.vue";
 import i18n from "@/renderer/lang";
 import { RepoItem } from "@/types";
 import { createVNode, toRaw } from "vue";
-import { useRepoStore } from "@/renderer/store/modules/repository";
+import { RepoStoreItem, useRepoStore } from "@/renderer/store/modules/repository";
 import { RepoTaskService } from "@/renderer/common/entity/repoTaskService";
 
-export default (repo: RepoItem) => {
+export default (repo: RepoStoreItem) => {
   let expose = {} as Expose
   const store = useRepoStore()
   const Comp = <RepoInfoEditDialog repo={repo} expose={(e) => {expose = e}}></RepoInfoEditDialog>

@@ -33,20 +33,21 @@
 
 <script lang="ts" setup>
 import { ExplorerTaskService } from '@/renderer/common/entity/explorerTaskService';
+import { RepoStoreItem } from '@/renderer/store/modules/repository';
 import { RepoItem } from '@/types';
 import { Picture as IconPicture } from '@element-plus/icons-vue'
 import { ref, onMounted, PropType, reactive, toRaw, toRefs } from 'vue'
 import { useI18n } from 'vue-i18n';
 
 export type Expose = {
-    repo: RepoItem
+    repo: RepoStoreItem
 }
 type _P = {
-    repo: RepoItem,
+    repo: RepoStoreItem,
     expose: (data: Expose) => void
 }
 const props = defineProps<_P>()
-const repoData = reactive(JSON.parse(JSON.stringify(props.repo)) as RepoItem)
+const repoData = reactive(JSON.parse(JSON.stringify(props.repo)) as RepoStoreItem)
 const explorService = new ExplorerTaskService()
 const i18n = useI18n()
 
