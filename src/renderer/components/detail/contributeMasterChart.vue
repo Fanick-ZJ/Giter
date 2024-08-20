@@ -1,10 +1,10 @@
 <template>
     <div class="header">
         <div class="timeAndSelect">
-            <div class="time">{{ totalStat.dateList[0] }} – {{ _.last(totalStat.dateList) }}</div>
+            <div class="time">{{ props.totalStat.dateList[0] }} – {{ _.last(props.totalStat.dateList) }}</div>
             <div class="select-box">
                 <!-- 当绑定的值位对象时，要使用value-key来指定key -->
-                <el-select v-model="curShowData" size="large" placeholder="Select" value-key="value" @change="onSelectChange">
+                <el-select v-model="curStatType" size="large" placeholder="Select" value-key="value" @change="onSelectChange">
                     <template #prefix>
                         {{ $t('chart.selectPrefix') }}
                     </template>
@@ -13,9 +13,9 @@
             </div>
         </div>
         <div class="title">
-            <span v-if="curShowData == 'commits'">{{ $t('chart.contributeMasterChartCommitTitle') }}</span>
-            <span v-else-if="curShowData == 'deletions'">{{ $t('chart.contributeMasterChartDeleteTitle') }}</span>
-            <span v-else-if="curShowData == 'insertions'">{{ $t('chart.contributeMasterChartInsertTitle') }}</span>
+            <span v-if="curStatType == 'commits'">{{ $t('chart.contributeMasterChartCommitTitle') }}</span>
+            <span v-else-if="curStatType == 'deletions'">{{ $t('chart.contributeMasterChartDeleteTitle') }}</span>
+            <span v-else-if="curStatType == 'insertions'">{{ $t('chart.contributeMasterChartInsertTitle') }}</span>
         </div>
         <div class="flex justify-center">
             <div class="h-[400px] w-full" ref="masterChartDOM"></div>
@@ -23,13 +23,13 @@
     </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends StatDailyContribute">
 import { ref, onMounted, reactive, watch, markRaw, nextTick, onUnmounted } from 'vue';
 import _ from 'lodash';
 import * as echarts from 'echarts';
 import dayjs from 'dayjs';
 import { AuthorStatDailyContribute, StatDailyContribute } from 'lib/git';
-import { CurShowData } from '@/renderer/views/repos/detail/type';
+import { StatType } from '@/renderer/views/repos/detail/type';
 
 type TableOptionItem = {
     name: string,
@@ -37,11 +37,11 @@ type TableOptionItem = {
 }
 
 const props = defineProps<{
-    totalStat: StatDailyContribute,
-    curShowData: CurShowData,
+    totalStat: T,
     authorMap: AuthorStatDailyContribute[]
 }>()
 
+const curStatType = ref<StatType>('commits')
 const optionList: TableOptionItem[] = [
     {
         name: 'chart.commitsOption',
@@ -56,6 +56,10 @@ const optionList: TableOptionItem[] = [
         value: 'deletions'
     }
 ]
+
+const emit = defineEmits<{
+    (e: 'statTypeChange', value: StatType): void
+}>()
 type EChartsOption = echarts.EChartsOption;
 const masterChartDOM = ref<HTMLElement>()
 // 在vue3中，第三方库的类型在不必要的时候不要使用响应式来表示
@@ -78,6 +82,10 @@ onMounted(async () => {
         masterChart = echarts.init(masterChartDOM.value, null, {renderer: 'svg'})
         flashChartData()
     }
+})
+
+watch(() => props.totalStat, (newVal, oldVal) => {
+    flashChartData()
 })
 
 onUnmounted(() => {
@@ -153,7 +161,8 @@ const chartOverShowDailyData = (params: any, asyncTicket: string): HTMLElement[]
     props.authorMap.forEach(item => {
         for(let i = 0 ; i < item.stat.dateList.length; i++){
             if(dayjs(item.stat.dateList[i]).format("YYYY-MM-DD") == params[0].name){
-                arr.push([item.author.name, chartStore.curAuthorDataList(item.author.name)[i]])
+                // 获取到对应日期的提交次数
+                arr.push([item.author.name, getAuhtorShowTypeStat(item)[i]])
                 return
             }
         }
@@ -178,24 +187,28 @@ const chartOverShowDailyData = (params: any, asyncTicket: string): HTMLElement[]
     return res
 }
 
+const getAuhtorShowTypeStat = (author: AuthorStatDailyContribute) => {
+    return curStatType.value == 'commits'
+            ? author.stat.commitCount
+            : curStatType.value == 'deletions'
+            ? author.stat.deletions
+            : author.stat.insertion
+}
+
 const getShowData = () => {
     const stat = props.totalStat
-    return props.curShowData === 'commits'
+    return curStatType.value === 'commits'
             ? stat.commitCount
-            : props.curShowData === 'deletions'
+            : curStatType.value === 'deletions'
             ? stat.deletions
             : stat.insertion
 }
 
-const onSelectChange = (value: CurShowData) => {
-    chartStore.curShowData = value
+const onSelectChange = (value: StatType) => {
+    emit('statTypeChange', value)
     flashChartData();
 }
 
-watch([() => chartStore.path, () => chartStore.branch], () => {
-    // 如果当前数据仓库变了，就刷新表格
-    flashChartData()
-})
 </script>
 
 <style scoped lang="scss">

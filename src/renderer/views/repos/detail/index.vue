@@ -12,8 +12,8 @@
                 </el-col>
             </div>
             <InfoBar :path="path" :branch="curBranch"></InfoBar>
-            <!-- <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall> -->
-            <ContributeMaseterChart></ContributeMaseterChart>
+            <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
+            <ContributeMaseterChart :author-map="repoStatInfo.authorMap" :stat-type="statType" :total-stat="repoStatInfo" @stat-type-change="(value) => statType = value"></ContributeMaseterChart>
             <div class='w-full h-[400px]'>
                 <virtual-list :data-source="getAuthorMapGroup()"
                     direction="vertical" 
@@ -25,7 +25,7 @@
                             <authorContributeChart 
                                 v-for="authorContribute in item.data" 
                                 :author-stat="authorContribute"
-                                :cur-show-data="curShowData"
+                                :cur-show-data="statType"
                                 :key="authorContribute.author.name + curBranch + authorContribute.author.email"
                             ></authorContributeChart>
                         </div>
@@ -53,7 +53,7 @@ import { Author, AuthorStatDailyContribute, Branch, BranchStatDailyContribute, S
 import LoadingPage from '@/renderer/components/common/LoadingPage/index.vue';
 import { IdAuthor } from '@/renderer/components/detail/type';
 import VirtualList from '@/renderer/components/common/virtualList/index.vue';
-import { CurShowData } from './type';
+import { StatType } from './type';
 import dayjs from 'dayjs';
 const route = useRoute()
 const router = useRouter()
@@ -88,8 +88,19 @@ type DetailChartStoreType = StatDailyContribute
                             & Record<'branch', string>
 
 
-const repoStatInfo = ref<DetailChartStoreType>()
-const curShowData = ref<CurShowData>('commits')
+const repoStatInfo = ref<DetailChartStoreType>({
+    start: new Date(),
+    end: new Date(),
+    changeFiles: [],
+    deletions: [],
+    insertion: [],
+    dateList: [],
+    authorMap: [],
+    commitCount: [],
+    path: repo.path,
+    branch: curBranch.value,
+})
+const statType = ref<StatType>('commits')
 const getAuthorMapGroup = () => {
     const group: AuthorContributeGroup[] = []
     if (repoStatInfo.value) {

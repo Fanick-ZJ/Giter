@@ -28,8 +28,8 @@ export default class Giter{
             })
 
             
+            this.win.webContents.openDevTools()
             if(process.env.NODE_ENV === 'development'){
-                this.win.webContents.openDevTools()
                 this.win.loadURL(process.argv[2])    // 开发环境
             }else{
                 this.win.loadFile('index.html')  //生产环境

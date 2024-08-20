@@ -68,13 +68,7 @@ const scrollStyle = computed(() => {
     return style as CSSProperties
 })
 
-watch(() => props.dataSource, (newVal, oldVal) => {
-    console.log('------------data changed')
-    console.log(newVal, oldVal)
-})
-
 watch([() => listRef.value, () => props.dataSource.length], () => {
-    console.log('show or data changed')
     props.dataSource.length && initPositions()
     nextTick(() => {
         setPositions()
@@ -91,7 +85,7 @@ watch(() => state.startIndex, () => {
 const initPositions = () => {
     const pos: IPosInfo[] = []
     const disLen = props.dataSource.length - state.prelen
-    console.log('disLen', disLen, 'state.prelen', state.prelen, 'props.dataSource', toRaw(props.dataSource))
+    // console.log('disLen', disLen, 'state.prelen', state.prelen, 'props.dataSource', toRaw(props.dataSource))
     const preTop = positions.value[state.prelen - 1]?.top || 0
     const preBottom = positions.value[state.prelen - 1]?.bottom || 0
     for(let i = 0; i < disLen; i++) {

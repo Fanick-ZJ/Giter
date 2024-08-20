@@ -1,1 +1,1 @@
-export type CurShowData = 'commits' | 'insertions' | 'deletions'
+export type StatType = 'commits' | 'insertions' | 'deletions'

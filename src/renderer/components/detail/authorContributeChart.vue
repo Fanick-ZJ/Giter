@@ -17,10 +17,10 @@ import { nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import * as echarts from 'echarts';
 import dayjs from 'dayjs';
 import { AuthorStatDailyContribute } from 'lib/git';
-import { CurShowData } from '@/renderer/views/repos/detail/type';
+import { StatType } from '@/renderer/views/repos/detail/type';
 const props = defineProps<{
     authorStat: AuthorStatDailyContribute,
-    curShowData: CurShowData
+    curShowData: StatType
 }>()
 
 type EChartsOption = echarts.EChartsOption;
@@ -74,6 +74,9 @@ let authorChart: echarts.ECharts
     }
 }
 
+watch (() => props.curShowData, () => {
+    flashChartData()
+})
 
 const getAuthorData = () => {
     const stat = props.authorStat.stat
