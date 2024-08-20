@@ -3,7 +3,7 @@
     <div class="w-full h-full" v-loading="props.loading">
         <!-- content -->
         <div class="w-full h-full"
-             :class="props.direction === 'vertical' ? 'overflow-y-scroll' : 'overflow-x-scroll'"
+             :class="props.direction === 'vertical' ? 'overflow-y-scroll overflow-x-hidden' : 'overflow-x-scroll overflow-y-hidden'"
              ref="contentRef">
             <!-- list -->
             <div ref="listRef" class="flex"
@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends {id: number}">
-import { computed, CSSProperties, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import { computed, CSSProperties, nextTick, onMounted, onUnmounted, reactive, ref, toRaw, watch } from 'vue';
 import { IEstimatedListProps, IPosInfo } from './type'
 import { rafThrottle } from '@/renderer/common/util/tools';
 
@@ -67,8 +67,15 @@ const scrollStyle = computed(() => {
                     }
     return style as CSSProperties
 })
+
+watch(() => props.dataSource, (newVal, oldVal) => {
+    console.log('------------data changed')
+    console.log(newVal, oldVal)
+})
+
 watch([() => listRef.value, () => props.dataSource.length], () => {
-    props.dataSource.length && initpositions()
+    console.log('show or data changed')
+    props.dataSource.length && initPositions()
     nextTick(() => {
         setPositions()
     })
@@ -81,9 +88,10 @@ watch(() => state.startIndex, () => {
 })
 
 // 拿到数据源，初始化pos数组
-const initpositions = () => {
+const initPositions = () => {
     const pos: IPosInfo[] = []
     const disLen = props.dataSource.length - state.prelen
+    console.log('disLen', disLen, 'state.prelen', state.prelen, 'props.dataSource', toRaw(props.dataSource))
     const preTop = positions.value[state.prelen - 1]?.top || 0
     const preBottom = positions.value[state.prelen - 1]?.bottom || 0
     for(let i = 0; i < disLen; i++) {
@@ -99,11 +107,10 @@ const initpositions = () => {
     positions.value = [...positions.value, ...pos]
     state.prelen = props.dataSource.length
 }
-
+ 
 // 数据 item 渲染完成后，更新数据item的真是高度
 const setPositions = () => {
     const nodes = listRef.value?.children
-    // console.log(nodes, nodes?.length)
     if (!nodes || !nodes.length) return
     // 获取当前视口中的渲染数据，来修正positions中记录的值
     [...nodes].forEach(element => {
@@ -115,8 +122,7 @@ const setPositions = () => {
                         : props.direction === 'horizontal'
                         ? item.height - rect.width
                         :0
-        // console.log(rect, id, item, dHeight)
-
+        // 如果高度差值不为0，说明数据item高度有变化，需要更新
         if (dHeight) {
             item.height = props.direction === 'vertical' 
                         ? rect.height 
@@ -141,7 +147,6 @@ const setPositions = () => {
             item.dHeight = 0
         }
     }
-
     state.listHeight = positions.value[positions.value.length - 1].bottom
 }
 
@@ -160,10 +165,10 @@ const init = () => {
 }
 
 const handleScroll = rafThrottle(() => {
-    const {scrollTop, clientHeight, scrollHeight, scrollLeft} = contentRef.value!
+    const {scrollTop, clientHeight, clientWidth, scrollHeight, scrollWidth, scrollLeft} = contentRef.value!
     const curScroll = props.direction === 'vertical' ? scrollTop : scrollLeft
     state.startIndex = binarySearch(positions.value, curScroll)
-    const bottom = scrollHeight - clientHeight - scrollTop
+    const bottom = props.direction === 'vertical' ? (scrollHeight - clientHeight - scrollTop) : (scrollWidth - clientWidth - scrollLeft)
     if (bottom <= 20) {
         !props.loading && emit("getMoreData")
     }
@@ -192,6 +197,7 @@ const binarySearch = (list: IPosInfo[], value: number) => {
 }
 
 onMounted(() => {
+    console.log('mounted')
     nextTick(() => {
         init()
     })
