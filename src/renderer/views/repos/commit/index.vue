@@ -49,7 +49,7 @@
                        overflow-y-scroll overflow-x-hidden
                        px-[10px] py-[10px]
                        gap-[10px] flex-row
-                       items-start">
+                       content-start">
                 <commit-detail-item
                     class="hover:scale-[1.01]"
                     :detail="item" 

@@ -15,22 +15,15 @@
             <AuthorWall :contributors-rank-list="contributorsRankList" :repo-info="repo" style="margin-bottom: 10px;"></AuthorWall>
             <ContributeMaseterChart :author-map="repoStatInfo.authorMap" :stat-type="statType" :total-stat="repoStatInfo" @stat-type-change="(value) => statType = value"></ContributeMaseterChart>
             <div class='w-full h-[400px]'>
-                <virtual-list :data-source="getAuthorMapGroup()"
-                    direction="vertical" 
-                    :gap="10" 
-                    :estimate-height="200" 
-                    :loading="false">
-                    <template #item="{ item }">
-                        <div class="grid grid-cols-2 gap-[10px]">
-                            <authorContributeChart 
-                                v-for="authorContribute in item.data" 
-                                :author-stat="authorContribute"
-                                :cur-show-data="statType"
-                                :key="authorContribute.author.name + curBranch + authorContribute.author.email"
-                            ></authorContributeChart>
-                        </div>
-                    </template>
-                </virtual-list>
+                
+                <div class="grid grid-cols-2 gap-[10px]" v-for="item in getAuthorMapGroup()">
+                    <authorContributeChart 
+                        v-for="authorContribute in item.data" 
+                        :author-stat="authorContribute"
+                        :cur-show-data="statType"
+                        :key="authorContribute.author.name + curBranch + authorContribute.author.email"
+                    ></authorContributeChart>
+                </div>
             </div>
         </div>
     </loading-page>
